@@ -66,7 +66,7 @@ const Flocks = ({}) => {
         randFloatSpread(maxSpeed),
       ],
     }),
-    instancedMeshRef
+    instancedMeshRef as any
   );
 
   useEffect(() => {
@@ -276,7 +276,7 @@ const Flocks = ({}) => {
 
   return (
     <instancedMesh
-      ref={instancedMeshRef}
+      ref={instancedMeshRef as any}
       args={[BIRD_GEOMETRY, BIRD_MATERIAL, numBirds]}
     ></instancedMesh>
   );

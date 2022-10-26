@@ -36,7 +36,11 @@ const FlocksControls = (props: Props) => {
 
   const handleSliderChange = (setValue: (value: number) => void) => {
     return (_: Event, value: number | number[]) => {
-      setValue(value);
+      if (Array.isArray(value)) {
+        setValue(value[0]);
+      } else {
+        setValue(value);
+      }
     };
   };
 
