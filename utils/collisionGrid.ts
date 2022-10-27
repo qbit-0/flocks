@@ -1,67 +1,38 @@
 import { Vector3 } from "three";
 
+export const hashPos = (pos: Vector3) => {
+  return `${pos.x},${pos.y},${pos.z}`;
+};
+
 export type CollisionGrid = {
   worldDims: Vector3;
   worldOffset: Vector3;
   gridDims: Vector3;
-  values: number[][];
+  gridPosCellValuesMap: Map<ReturnType<typeof hashPos>, Set<number>>;
 };
 
-// CONVERSION FUNCTIONS
+export const worldPosToGridPos = (pos: Vector3, grid: CollisionGrid) => {
+  const offsetPos = pos.clone().sub(grid.worldOffset);
 
-export const worldPosToGridPos = (
-  pos: Vector3,
-  worldDims: Vector3,
-  worldOffset: Vector3,
-  gridDims: Vector3
-) => {
-  const offsetPos = pos.clone().sub(worldOffset);
-
-  const gridX = Math.floor((offsetPos.x / worldDims.x) * gridDims.x);
-  const gridY = Math.floor((offsetPos.y / worldDims.y) * gridDims.y);
-  const gridZ = Math.floor((offsetPos.z / worldDims.z) * gridDims.z);
+  const gridX = Math.floor((offsetPos.x / grid.worldDims.x) * grid.gridDims.x);
+  const gridY = Math.floor((offsetPos.y / grid.worldDims.y) * grid.gridDims.y);
+  const gridZ = Math.floor((offsetPos.z / grid.worldDims.z) * grid.gridDims.z);
   if (
     gridX < 0 ||
-    gridX >= gridDims.x ||
+    gridX >= grid.gridDims.x ||
     gridY < 0 ||
-    gridY >= gridDims.y ||
+    gridY >= grid.gridDims.y ||
     gridZ < 0 ||
-    gridZ >= gridDims.z
+    gridZ >= grid.gridDims.z
   )
     return null;
   return new Vector3(gridX, gridY, gridZ);
 };
 
-export const gridPosToGridIndex = (gridPos: Vector3, gridDims: Vector3) =>
-  gridPos.z * gridDims.x * gridDims.y + gridPos.y * gridDims.x + gridPos.x;
+export const worldPosToAdjCellValues = (pos: Vector3, grid: CollisionGrid) => {
+  const gridPos = worldPosToGridPos(pos, grid);
 
-export const worldPosToGridIndex = (
-  pos: Vector3,
-  worldDims: Vector3,
-  worldOffset: Vector3,
-  gridDims: Vector3
-) => {
-  const gridPos = worldPosToGridPos(pos, worldDims, worldOffset, gridDims);
-  if (gridPos === null) return null;
-  return gridPosToGridIndex(gridPos, gridDims);
-};
-
-export const gridIndexToGridPos = (gridIndex: number, gridDims: Vector3) => {
-  const gridX = (gridIndex % gridDims.z) % gridDims.y;
-  const gridY = (gridIndex % gridDims.z) / gridDims.y;
-  const gridZ = gridIndex / gridDims.z;
-  return new Vector3(gridX, gridY, gridZ);
-};
-
-export const worldPosToAdjValues = (pos: Vector3, grid: CollisionGrid) => {
-  const gridPos = worldPosToGridPos(
-    pos,
-    grid.worldDims,
-    grid.worldOffset,
-    grid.gridDims
-  );
-
-  if (gridPos === null) return [];
+  if (gridPos === null) return new Set<number>();
 
   const adjGridPosArr: Vector3[] = [];
   for (let offsetX = -1; offsetX <= 1; offsetX++) {
@@ -84,13 +55,41 @@ export const worldPosToAdjValues = (pos: Vector3, grid: CollisionGrid) => {
     }
   }
 
-  const adjGridIndices = adjGridPosArr.map((adjPos) =>
-    gridPosToGridIndex(adjPos, grid.gridDims)
-  );
+  return adjGridPosArr.reduce((partialAdjCellValues, adjGridPos) => {
+    const adjGridCellValues = grid.gridPosCellValuesMap.get(
+      hashPos(adjGridPos)
+    );
+    if (adjGridCellValues === undefined) return partialAdjCellValues;
+    return new Set([...partialAdjCellValues, ...adjGridCellValues]);
+  }, new Set<number>());
+};
 
-  return adjGridIndices.reduce((partialNeighborValues, adjGridIndex) => {
-    return [...partialNeighborValues, ...grid.values[adjGridIndex]];
-  }, [] as number[]);
+const addCellValue = (
+  gridPos: Vector3,
+  cellValue: number,
+  grid: CollisionGrid
+) => {
+  let currCellValues = grid.gridPosCellValuesMap.get(hashPos(gridPos));
+  if (currCellValues === undefined)
+    grid.gridPosCellValuesMap.set(hashPos(gridPos), new Set<number>());
+  else
+    grid.gridPosCellValuesMap.set(
+      hashPos(gridPos),
+      new Set([...currCellValues, cellValue])
+    );
+};
+
+const removeCellValue = (
+  gridPos: Vector3,
+  cellValue: number,
+  grid: CollisionGrid
+) => {
+  let currCellValues = grid.gridPosCellValuesMap.get(hashPos(gridPos));
+  if (currCellValues === undefined) return;
+  currCellValues.delete(cellValue);
+  if (currCellValues.size === 0)
+    grid.gridPosCellValuesMap.delete(hashPos(gridPos));
+  else grid.gridPosCellValuesMap.set(hashPos(gridPos), currCellValues);
 };
 
 export const getGridDims = (worldDims: Vector3, cellSize: number) => {
@@ -107,61 +106,41 @@ export const createGrid = (
   cellSize: number
 ): CollisionGrid => {
   const gridDims = getGridDims(worldDims, cellSize);
-  const values: number[][] = [];
-
-  for (
-    let gridIndex = 0;
-    gridIndex < gridDims.x * gridDims.y * gridDims.z;
-    gridIndex++
-  ) {
-    values.push([]);
-  }
-
-  posCellValuePairs.forEach(([pos, cellValue]) => {
-    const gridIndex = worldPosToGridIndex(
-      pos,
-      worldDims,
-      worldOffset,
-      gridDims
-    );
-    if (gridIndex === null) return;
-    values[gridIndex].push(cellValue);
-  });
-
-  return {
+  const gridPosCellValuesMap = new Map<
+    ReturnType<typeof hashPos>,
+    Set<number>
+  >();
+  const grid: CollisionGrid = {
     worldDims,
     worldOffset,
     gridDims,
-    values,
+    gridPosCellValuesMap,
   };
+
+  posCellValuePairs.forEach(([pos, cellValue]) => {
+    const gridPos = worldPosToGridPos(pos, grid);
+    if (gridPos === null) return;
+    addCellValue(gridPos, cellValue, grid);
+  });
+
+  return grid;
 };
 
 export const updateGrid = (
   pos: Vector3,
   nextPos: Vector3,
-  value: number,
-  grid: CollisionGrid
+  cellValue: number,
+  grid: CollisionGrid,
+  nextGrid: CollisionGrid
 ) => {
-  const gridIndex = worldPosToGridIndex(
-    pos,
-    grid.gridDims,
-    grid.worldOffset,
-    grid.gridDims
-  );
-  if (gridIndex === null) return;
+  const gridPos = worldPosToGridPos(pos, grid);
+  if (gridPos === null) return;
 
-  const nextGridIndex = worldPosToGridIndex(
-    nextPos,
-    grid.gridDims,
-    grid.worldOffset,
-    grid.gridDims
-  );
-  if (nextGridIndex === null) return;
+  const nextGridPos = worldPosToGridPos(nextPos, grid);
+  if (nextGridPos === null) return;
 
-  if (gridIndex !== nextGridIndex) {
-    grid.values[gridIndex] = grid.values[gridIndex].filter(
-      (gridValue) => gridValue === value
-    );
-    grid.values[nextGridIndex].push(value);
+  if (!gridPos.equals(nextGridPos)) {
+    removeCellValue(gridPos, cellValue, nextGrid);
+    addCellValue(nextGridPos, cellValue, nextGrid);
   }
 };

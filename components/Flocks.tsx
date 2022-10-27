@@ -4,7 +4,12 @@ import produce from "immer";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Vector3 } from "three";
 import { randFloat, randFloatSpread } from "three/src/math/MathUtils";
-import { CollisionGrid, createGrid, getGridDims } from "../utils/collisionGrid";
+import {
+  CollisionGrid,
+  createGrid,
+  getGridDims,
+  hashPos,
+} from "../utils/collisionGrid";
 import { FlocksContext } from "../utils/context/FlocksContextProvider";
 import {
   BirdsData,
@@ -34,30 +39,15 @@ const Flocks = ({}) => {
     worldDepth,
   } = flocksContext;
 
-  const [posArr, setPosArr] = useState<Vector3[]>([]);
-  const [velArr, setVelArr] = useState<Vector3[]>([]);
-  const [accArr, setAccArr] = useState<Vector3[]>([]);
-  const [rotArr, setRotArr] = useState<Vector3[]>([]);
+  const [posArr, setPosArr] = useState<Vector3[]>();
+  const [velArr, setVelArr] = useState<Vector3[]>();
+  const [accArr, setAccArr] = useState<Vector3[]>();
+  const [rotArr, setRotArr] = useState<Vector3[]>();
 
   const worldDims = new Vector3(worldWidth, worldHeight, worldDepth);
-  const [separationGrid, setSeparationGrid] = useState<CollisionGrid>({
-    worldDims: new Vector3(300, 300, 300),
-    worldOffset: new Vector3(-150, -150, -150),
-    gridDims: getGridDims(worldDims, separationDist),
-    values: [],
-  });
-  const [alignmentGrid, setAlignmentGrid] = useState<CollisionGrid>({
-    worldDims: new Vector3(300, 300, 300),
-    worldOffset: new Vector3(-150, -150, -150),
-    gridDims: getGridDims(worldDims, separationDist),
-    values: [],
-  });
-  const [cohesionGrid, setCohesionGrid] = useState<CollisionGrid>({
-    worldDims: new Vector3(300, 300, 300),
-    worldOffset: new Vector3(-150, -150, -150),
-    gridDims: getGridDims(worldDims, separationDist),
-    values: [],
-  });
+  const [separationGrid, setSeparationGrid] = useState<CollisionGrid>();
+  const [alignmentGrid, setAlignmentGrid] = useState<CollisionGrid>();
+  const [cohesionGrid, setCohesionGrid] = useState<CollisionGrid>();
 
   useEffect(() => {
     const nextPosArr: Vector3[] = [];
@@ -76,29 +66,29 @@ const Flocks = ({}) => {
     const worldDims = new Vector3(300, 300, 300);
     const worldOffset = new Vector3(-150, -150, -150);
 
-    // const nextSeparationGrid = createGrid(
-    //   posCellValuePairs,
-    //   worldDims,
-    //   worldOffset,
-    //   separationDist
-    // );
-    // setSeparationGrid(nextSeparationGrid);
+    const nextSeparationGrid = createGrid(
+      posCellValuePairs,
+      worldDims,
+      worldOffset,
+      separationDist
+    );
+    setSeparationGrid(nextSeparationGrid);
 
-    // const nextAlignmentGrid = createGrid(
-    //   posCellValuePairs,
-    //   worldDims,
-    //   worldOffset,
-    //   alignmentDist
-    // );
-    // setAlignmentGrid(nextAlignmentGrid);
+    const nextAlignmentGrid = createGrid(
+      posCellValuePairs,
+      worldDims,
+      worldOffset,
+      alignmentDist
+    );
+    setAlignmentGrid(nextAlignmentGrid);
 
-    // const nextCohesionGrid = createGrid(
-    //   posCellValuePairs,
-    //   worldDims,
-    //   worldOffset,
-    //   cohesionDist
-    // );
-    // setCohesionGrid(nextCohesionGrid);
+    const nextCohesionGrid = createGrid(
+      posCellValuePairs,
+      worldDims,
+      worldOffset,
+      cohesionDist
+    );
+    setCohesionGrid(nextCohesionGrid);
   }, [
     numBirds,
     separationDist,
@@ -107,54 +97,55 @@ const Flocks = ({}) => {
     worldWidth,
     worldHeight,
     worldDepth,
-    posArr.length,
   ]);
 
   useEffect(() => {
-    setVelArr(
-      produce((draft) => {
-        for (let i = draft.length; i < numBirds; i++) {
-          const vel = new Vector3(
-            randFloatSpread(2),
-            randFloatSpread(2),
-            randFloatSpread(2)
-          ).setLength(maxSpeed);
-          draft.push(vel);
-        }
-        draft.splice(numBirds);
-      })
-    );
-  }, [numBirds, maxSpeed, velArr.length]);
+    const nextVelArr: Vector3[] = [];
+    for (let i = nextVelArr.length; i < numBirds; i++) {
+      const vel = new Vector3(
+        randFloatSpread(2),
+        randFloatSpread(2),
+        randFloatSpread(2)
+      ).setLength(maxSpeed);
+      nextVelArr.push(vel);
+    }
+    nextVelArr.splice(numBirds);
+    setVelArr(nextVelArr);
+  }, [numBirds, maxSpeed]);
 
   useEffect(() => {
-    setAccArr(
-      produce((draft) => {
-        for (let i = draft.length; i < numBirds; i++) {
-          const acc = new Vector3();
-          draft.push(acc);
-        }
-        draft.splice(numBirds);
-      })
-    );
-  }, [numBirds, maxForce, accArr.length]);
+    const nextAccArr: Vector3[] = [];
+    for (let i = nextAccArr.length; i < numBirds; i++) {
+      const acc = new Vector3();
+      nextAccArr.push(acc);
+    }
+    nextAccArr.splice(numBirds);
+    setAccArr(nextAccArr);
+  }, [numBirds, maxForce]);
 
   useEffect(() => {
-    setRotArr(
-      produce((draft) => {
-        for (let i = draft.length; i < numBirds; i++) {
-          const rot = new Vector3(
-            randFloat(0, 2 * Math.PI),
-            randFloat(0, 2 * Math.PI),
-            randFloat(0, 2 * Math.PI)
-          );
-          draft.push(rot);
-        }
-        draft.splice(numBirds);
-      })
-    );
-  }, [numBirds, maxForce, rotArr.length]);
+    const nextRotArr: Vector3[] = [];
+    for (let i = nextRotArr.length; i < numBirds; i++) {
+      const rot = new Vector3();
+      nextRotArr.push(rot);
+    }
+    nextRotArr.splice(numBirds);
+
+    setRotArr(nextRotArr);
+  }, [numBirds, maxForce]);
 
   useFrame((state) => {
+    if (
+      !posArr ||
+      !velArr ||
+      !accArr ||
+      !rotArr ||
+      !separationGrid ||
+      !alignmentGrid ||
+      !cohesionGrid
+    )
+      return;
+
     const delta = state.clock.getDelta();
 
     const birdsData: BirdsData = { posArr, velArr, accArr, rotArr };
@@ -165,64 +156,55 @@ const Flocks = ({}) => {
       cohesionGrid,
     };
 
-    // for (let index = 0; index < numBirds; index++) {
-    //   if (
-    //     !posArr[index] ||
-    //     !velArr[index] ||
-    //     !accArr[index] ||
-    //     !rotArr[index] ||
-    //     !separationGrid.values.length ||
-    //     !alignmentGrid.values.length ||
-    //     !cohesionGrid.values.length
-    //   )
-    //     return;
-    // }
+    const nextStates = produce(
+      {
+        birdsData,
+        collisionGrids,
+      },
+      (draft) => {
+        const draftBirdsData = draft.birdsData;
+        const draftCollisionGrids = draft.collisionGrids;
 
-    // const nextStates = produce(
-    //   {
-    //     birdsData,
-    //     collisionGrids,
-    //   },
-    //   (draft) => {
-    //     const draftBirdsData = draft.birdsData;
-    //     const draftCollisionGrids = draft.collisionGrids;
+        draftBirdsData.posArr = birdsData.posArr.map((pos) => pos.clone());
+        draftBirdsData.velArr = birdsData.velArr.map((vel) => vel.clone());
+        draftBirdsData.accArr = birdsData.accArr.map(() => new Vector3());
+        draftBirdsData.rotArr = birdsData.rotArr.map(() => new Vector3());
 
-    //     for (let index = 0; index < numBirds; index++) {
-    //       if (
-    //         !posArr[index] ||
-    //         !velArr[index] ||
-    //         !accArr[index] ||
-    //         !rotArr[index] ||
-    //         !separationGrid.values.length ||
-    //         !alignmentGrid.values.length ||
-    //         !cohesionGrid.values.length
-    //       )
-    //         return;
+        for (let index = 0; index < numBirds; index++) {
+          if (
+            !posArr[index] ||
+            !velArr[index] ||
+            !accArr[index] ||
+            !rotArr[index]
+          )
+            continue;
 
-    //       update(
-    //         index,
-    //         flocksContext,
-    //         birdsData,
-    //         draftBirdsData,
-    //         collisionGrids,
-    //         draftCollisionGrids,
-    //         delta
-    //       );
-    //     }
-    //   }
-    // );
+          update(
+            index,
+            flocksContext,
+            birdsData,
+            draftBirdsData,
+            collisionGrids,
+            draftCollisionGrids,
+            delta
+          );
+        }
+      }
+    );
 
-    setPosArr(posArr);
-    setVelArr(velArr);
-    setAccArr(accArr);
-    setRotArr(rotArr);
-    setSeparationGrid(separationGrid);
-    setAlignmentGrid(alignmentGrid);
-    setCohesionGrid(cohesionGrid);
+    setPosArr(nextStates.birdsData.posArr);
+    setVelArr(nextStates.birdsData.velArr);
+    setAccArr(nextStates.birdsData.accArr);
+    setRotArr(nextStates.birdsData.rotArr);
+    setSeparationGrid(nextStates.collisionGrids.separationGrid);
+    setAlignmentGrid(nextStates.collisionGrids.alignmentGrid);
+    setCohesionGrid(nextStates.collisionGrids.cohesionGrid);
   });
 
   const instances = useMemo(() => {
     const instances: React.ReactElement[] = [];
+    if (!posArr || !rotArr) return null;
+
     for (let i = 0; i < numBirds; i++) {
       if (!posArr[i] || !rotArr[i]) continue;
 

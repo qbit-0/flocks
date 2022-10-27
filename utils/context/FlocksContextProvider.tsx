@@ -57,9 +57,9 @@ type Props = {
 const FlocksContextProvider: FC<Props> = ({
   children,
   initialNumBirds = 300,
-  initialSeparationDist = 10,
-  initialAlignmentDist = 5,
-  initialCohesionDist = 5,
+  initialSeparationDist = 2,
+  initialAlignmentDist = 2,
+  initialCohesionDist = 2,
   initialBirdFov = (3 * Math.PI) / 4,
   initialMaxSpeed = 1000,
   initialMaxForce = 100000,
