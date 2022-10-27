@@ -45,12 +45,12 @@ const FlocksControls = (props: Props) => {
   };
 
   return (
-    <Box component="div">
+    <Box component="div" color="white">
       <Typography>{`Number of Birds: ${numBirds}`}</Typography>
       <Slider
         value={numBirds}
         min={0}
-        max={300}
+        max={1000}
         onChange={handleSliderChange(setNumBirds)}
       />
 
@@ -58,7 +58,7 @@ const FlocksControls = (props: Props) => {
       <Slider
         value={maxSpeed}
         min={0}
-        max={100}
+        max={20000}
         onChange={handleSliderChange(setMaxSpeed)}
       />
 
@@ -66,7 +66,7 @@ const FlocksControls = (props: Props) => {
       <Slider
         value={maxForce}
         min={0}
-        max={300}
+        max={600000}
         onChange={handleSliderChange(setMaxForce)}
       />
 

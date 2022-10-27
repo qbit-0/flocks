@@ -89,9 +89,7 @@ const FlocksCanvas = (props: Props) => {
       >
         <meshBasicMaterial color="black" wireframe />
       </Plane>
-      <Physics gravity={[0, 0, 0]}>
-        <Flocks />
-      </Physics>
+      <Flocks />
     </Canvas>
   );
 };

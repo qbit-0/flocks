@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 
-type FlocksContextType = {
+export type FlocksContextType = {
   numBirds: number;
   setNumBirds: Dispatch<SetStateAction<number>>;
   maxSpeed: number;
@@ -56,19 +56,19 @@ type Props = {
 
 const FlocksContextProvider: FC<Props> = ({
   children,
-  initialNumBirds = 200,
-  initialSeparationDist = 7,
+  initialNumBirds = 300,
+  initialSeparationDist = 10,
   initialAlignmentDist = 5,
   initialCohesionDist = 5,
   initialBirdFov = (3 * Math.PI) / 4,
-  initialMaxSpeed = 30,
-  initialMaxForce = 150,
+  initialMaxSpeed = 1000,
+  initialMaxForce = 100000,
   initialSeparationWeight = 1,
   initialAlignmentWeight = 1,
   initialCohesionWeight = 0.9,
   initialBoundWidth = 40,
   initialBoundHeight = 40,
-  initialBoundDepth = 20,
+  initialBoundDepth = 40,
 }) => {
   const [numBirds, setNumBirds] = useState(initialNumBirds);
   const [separationDist, setSeparationDist] = useState(initialSeparationDist);
