@@ -1,4 +1,4 @@
-import { Box, Slider, Typography } from "@mui/material";
+import { Box, Paper, Slider, Typography } from "@mui/material";
 import React, { useContext } from "react";
 import { FlocksContext } from "../utils/context/FlocksContextProvider";
 
@@ -43,7 +43,9 @@ const FlocksControls = (props: Props) => {
   };
 
   return (
-    <Box component="div" color="white">
+    <Paper
+      sx={{ padding: 2, bgcolor: "transparent", backdropFilter: "blur(5px)" }}
+    >
       <Typography>{`Number of Birds: ${numBirds}`}</Typography>
       <Slider
         value={numBirds}
@@ -151,7 +153,7 @@ const FlocksControls = (props: Props) => {
         step={10}
         onChange={handleSliderChange(setWorldDepth)}
       />
-    </Box>
+    </Paper>
   );
 };
 

@@ -1,7 +1,8 @@
+import { useTheme } from "@mui/material";
 import { Instance, Instances } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import produce from "immer";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Euler, Quaternion, Vector3 } from "three";
 import { randFloatSpread } from "three/src/math/MathUtils";
 import { ArrayGrid, createArrayGrid } from "../utils/arrayGrid";
@@ -13,9 +14,9 @@ import {
   update,
 } from "../utils/updateFlock";
 
-const BIRD_GEOMETRY = <coneGeometry args={[0.25, 0.5, 16, 1]} />;
+const BIRD_GEOMETRY = <coneGeometry args={[0.25, 0.5, 5, 1, true]} />;
 const BIRD_MATERIAL = (
-  <meshStandardMaterial color="white" roughness={0.5} metalness={0.5} />
+  <meshStandardMaterial roughness={1} metalness={0} wireframe />
 );
 
 const getRotFromVel = (vel: Vector3) => {
@@ -30,6 +31,17 @@ const getRotFromVel = (vel: Vector3) => {
 type Props = {};
 
 const Flocks = ({}) => {
+  const theme = useTheme();
+
+  const birdColors = useMemo<string[]>(
+    () => [
+      theme.palette.birdA.main,
+      theme.palette.birdB.main,
+      theme.palette.birdC.main,
+    ],
+    [theme.palette]
+  );
+
   const flocksContext = useContext(FlocksContext);
   const {
     numBirds,
@@ -222,6 +234,7 @@ const Flocks = ({}) => {
           key={i}
           position={nextStates.birdsData.posArr[i].toArray()}
           rotation={rot.toArray()}
+          color={birdColors[i % 3]}
         />
       );
     }

@@ -1,3 +1,4 @@
+import { useTheme } from "@mui/material";
 import {
   Environment,
   PerspectiveCamera,
@@ -14,6 +15,7 @@ const TILE_SIZE = 1;
 type Props = {};
 
 const FlocksCanvas = (props: Props) => {
+  const theme = useTheme();
   const { worldWidth, worldHeight, worldDepth } = useContext(FlocksContext);
 
   return (
@@ -23,10 +25,11 @@ const FlocksCanvas = (props: Props) => {
         position={[0, 0, worldDepth / 2 + 40]}
         fov={60}
       />
-      <directionalLight position={[-100, 100, 100]} />
-      <Environment preset="warehouse" />
+      <ambientLight intensity={1} />
+      <directionalLight position={[-100, 100, 100]} intensity={5} />
+      <Environment preset="city" />
       <ScreenQuad position={[0, 0, -100]} scale={1000}>
-        <meshBasicMaterial color="brown" />
+        <meshBasicMaterial color={theme.palette.background.main} />
       </ScreenQuad>
       <Plane
         args={[
@@ -38,7 +41,7 @@ const FlocksCanvas = (props: Props) => {
         position={[-worldWidth / 2, 0, 0]}
         rotation={[0, Math.PI / 2, 0]}
       >
-        <meshBasicMaterial color="black" wireframe />
+        <meshBasicMaterial color={theme.palette.box.main} wireframe />
       </Plane>
       <Plane
         args={[
@@ -50,7 +53,7 @@ const FlocksCanvas = (props: Props) => {
         position={[worldWidth / 2, 0, 0]}
         rotation={[0, -Math.PI / 2, 0]}
       >
-        <meshBasicMaterial color="black" wireframe />
+        <meshBasicMaterial color={theme.palette.box.main} wireframe />
       </Plane>
       <Plane
         args={[
@@ -62,7 +65,7 @@ const FlocksCanvas = (props: Props) => {
         position={[0, worldHeight / 2, 0]}
         rotation={[Math.PI / 2, 0, 0]}
       >
-        <meshBasicMaterial color="black" wireframe />
+        <meshBasicMaterial color={theme.palette.box.main} wireframe />
       </Plane>
       <Plane
         args={[
@@ -74,7 +77,7 @@ const FlocksCanvas = (props: Props) => {
         position={[0, -worldHeight / 2, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
       >
-        <meshBasicMaterial color="black" wireframe />
+        <meshBasicMaterial color={theme.palette.box.main} wireframe />
       </Plane>
       <Plane
         args={[
@@ -86,7 +89,7 @@ const FlocksCanvas = (props: Props) => {
         position={[0, 0, -worldDepth / 2]}
         rotation={[0, 0, 0]}
       >
-        <meshBasicMaterial color="black" wireframe />
+        <meshBasicMaterial color={theme.palette.box.main} wireframe />
       </Plane>
       <Flocks />
     </Canvas>
