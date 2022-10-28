@@ -2,14 +2,9 @@ import { Instance, Instances } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import produce from "immer";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { Vector3 } from "three";
-import { randFloat, randFloatSpread } from "three/src/math/MathUtils";
-import {
-  CollisionGrid,
-  createGrid,
-  getGridDims,
-  hashPos,
-} from "../utils/collisionGrid";
+import { Euler, Quaternion, Vector3 } from "three";
+import { randFloatSpread } from "three/src/math/MathUtils";
+import { ArrayGrid, createArrayGrid } from "../utils/arrayGrid";
 import { FlocksContext } from "../utils/context/FlocksContextProvider";
 import {
   BirdsData,
@@ -18,10 +13,19 @@ import {
   update,
 } from "../utils/updateFlock";
 
-const BIRD_GEOMETRY = <coneGeometry args={[0.25, 1, 16, 1]} />;
+const BIRD_GEOMETRY = <coneGeometry args={[0.25, 0.5, 16, 1]} />;
 const BIRD_MATERIAL = (
   <meshStandardMaterial color="white" roughness={0.5} metalness={0.5} />
 );
+
+const getRotFromVel = (vel: Vector3) => {
+  const rotQuarternion = new Quaternion().setFromUnitVectors(
+    new Vector3(0, 1, 0),
+    vel.clone().normalize()
+  );
+  const rotEuler = new Euler().setFromQuaternion(rotQuarternion);
+  return new Vector3(rotEuler.x, rotEuler.y, rotEuler.z);
+};
 
 type Props = {};
 
@@ -42,12 +46,10 @@ const Flocks = ({}) => {
   const [posArr, setPosArr] = useState<Vector3[]>();
   const [velArr, setVelArr] = useState<Vector3[]>();
   const [accArr, setAccArr] = useState<Vector3[]>();
-  const [rotArr, setRotArr] = useState<Vector3[]>();
 
-  const worldDims = new Vector3(worldWidth, worldHeight, worldDepth);
-  const [separationGrid, setSeparationGrid] = useState<CollisionGrid>();
-  const [alignmentGrid, setAlignmentGrid] = useState<CollisionGrid>();
-  const [cohesionGrid, setCohesionGrid] = useState<CollisionGrid>();
+  const [separationGrid, setSeparationGrid] = useState<ArrayGrid<number>>();
+  const [alignmentGrid, setAlignmentGrid] = useState<ArrayGrid<number>>();
+  const [cohesionGrid, setCohesionGrid] = useState<ArrayGrid<number>>();
 
   useEffect(() => {
     const nextPosArr: Vector3[] = [];
@@ -66,7 +68,7 @@ const Flocks = ({}) => {
     const worldDims = new Vector3(300, 300, 300);
     const worldOffset = new Vector3(-150, -150, -150);
 
-    const nextSeparationGrid = createGrid(
+    const nextSeparationGrid = createArrayGrid(
       posCellValuePairs,
       worldDims,
       worldOffset,
@@ -74,7 +76,7 @@ const Flocks = ({}) => {
     );
     setSeparationGrid(nextSeparationGrid);
 
-    const nextAlignmentGrid = createGrid(
+    const nextAlignmentGrid = createArrayGrid(
       posCellValuePairs,
       worldDims,
       worldOffset,
@@ -82,7 +84,7 @@ const Flocks = ({}) => {
     );
     setAlignmentGrid(nextAlignmentGrid);
 
-    const nextCohesionGrid = createGrid(
+    const nextCohesionGrid = createArrayGrid(
       posCellValuePairs,
       worldDims,
       worldOffset,
@@ -123,23 +125,11 @@ const Flocks = ({}) => {
     setAccArr(nextAccArr);
   }, [numBirds, maxForce]);
 
-  useEffect(() => {
-    const nextRotArr: Vector3[] = [];
-    for (let i = nextRotArr.length; i < numBirds; i++) {
-      const rot = new Vector3();
-      nextRotArr.push(rot);
-    }
-    nextRotArr.splice(numBirds);
-
-    setRotArr(nextRotArr);
-  }, [numBirds, maxForce]);
-
   useFrame((state) => {
     if (
       !posArr ||
       !velArr ||
       !accArr ||
-      !rotArr ||
       !separationGrid ||
       !alignmentGrid ||
       !cohesionGrid
@@ -148,7 +138,7 @@ const Flocks = ({}) => {
 
     const delta = state.clock.getDelta();
 
-    const birdsData: BirdsData = { posArr, velArr, accArr, rotArr };
+    const birdsData: BirdsData = { posArr, velArr, accArr };
 
     const collisionGrids: CollisionGrids = {
       separationGrid,
@@ -168,34 +158,21 @@ const Flocks = ({}) => {
         draftBirdsData.posArr = birdsData.posArr.map((pos) => pos.clone());
         draftBirdsData.velArr = birdsData.velArr.map((vel) => vel.clone());
         draftBirdsData.accArr = birdsData.accArr.map(() => new Vector3());
-        draftBirdsData.rotArr = birdsData.rotArr.map(() => new Vector3());
 
-        for (let index = 0; index < numBirds; index++) {
-          if (
-            !posArr[index] ||
-            !velArr[index] ||
-            !accArr[index] ||
-            !rotArr[index]
-          )
-            continue;
-
-          update(
-            index,
-            flocksContext,
-            birdsData,
-            draftBirdsData,
-            collisionGrids,
-            draftCollisionGrids,
-            delta
-          );
-        }
+        update(
+          flocksContext,
+          birdsData,
+          draftBirdsData,
+          collisionGrids,
+          draftCollisionGrids,
+          delta
+        );
       }
     );
 
     setPosArr(nextStates.birdsData.posArr);
     setVelArr(nextStates.birdsData.velArr);
     setAccArr(nextStates.birdsData.accArr);
-    setRotArr(nextStates.birdsData.rotArr);
     setSeparationGrid(nextStates.collisionGrids.separationGrid);
     setAlignmentGrid(nextStates.collisionGrids.alignmentGrid);
     setCohesionGrid(nextStates.collisionGrids.cohesionGrid);
@@ -203,24 +180,25 @@ const Flocks = ({}) => {
 
   const instances = useMemo(() => {
     const instances: React.ReactElement[] = [];
-    if (!posArr || !rotArr) return null;
+    if (!posArr || !velArr) return null;
 
     for (let i = 0; i < numBirds; i++) {
-      if (!posArr[i] || !rotArr[i]) continue;
+      if (!posArr[i] || !velArr[i]) continue;
+      const rot = getRotFromVel(velArr[i]);
 
       instances.push(
         <Instance
           key={i}
           position={posArr[i].toArray()}
-          rotation={rotArr[i].toArray()}
+          rotation={rot.toArray()}
         />
       );
     }
     return instances;
-  }, [numBirds, posArr, rotArr]);
+  }, [numBirds, posArr]);
 
   return (
-    <Instances>
+    <Instances limit={10000}>
       {BIRD_GEOMETRY}
       {BIRD_MATERIAL}
       {instances}

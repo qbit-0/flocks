@@ -12,8 +12,6 @@ const FlocksControls = (props: Props) => {
     setMaxSpeed,
     maxForce,
     setMaxForce,
-    birdFov,
-    setBirdFov,
     separationDist,
     setSeparationDist,
     alignmentDist,
@@ -50,7 +48,7 @@ const FlocksControls = (props: Props) => {
       <Slider
         value={numBirds}
         min={0}
-        max={1000}
+        max={10000}
         onChange={handleSliderChange(setNumBirds)}
       />
 
@@ -68,17 +66,6 @@ const FlocksControls = (props: Props) => {
         min={0}
         max={600000}
         onChange={handleSliderChange(setMaxForce)}
-      />
-
-      <Typography>{`Bird Field of View: ${
-        (birdFov * 180) / Math.PI
-      }\u00B0`}</Typography>
-      <Slider
-        value={birdFov}
-        min={0}
-        max={2 * Math.PI}
-        step={Math.PI / 4}
-        onChange={handleSliderChange(setBirdFov)}
       />
 
       <Typography>{`Separation Distance: ${separationDist}`}</Typography>

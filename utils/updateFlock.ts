@@ -1,34 +1,27 @@
-import { Euler, Quaternion, Vector3 } from "three";
-import {
-  CollisionGrid,
-  updateGrid,
-  worldPosToAdjCellValues,
-} from "./collisionGrid";
+import { Vector3 } from "three";
+import { ArrayGrid, updateArrayGrid, worldPosToAdjValueArr } from "./arrayGrid";
 import { FlocksContextType } from "./context/FlocksContextProvider";
+import { worldPosToGridPos } from "./grid";
+import {
+  createValueGrid,
+  gridPosToValue,
+  setValue,
+  ValueGrid,
+} from "./valueGrid";
 
-export const BORDER_THICKNESS = 10;
+export const BORDER_THICKNESS = 5;
 export const BORDER_FORCE = 100000;
 
 export type BirdsData = {
   posArr: Vector3[];
   velArr: Vector3[];
   accArr: Vector3[];
-  rotArr: Vector3[];
 };
 
 export type CollisionGrids = {
-  separationGrid: CollisionGrid;
-  alignmentGrid: CollisionGrid;
-  cohesionGrid: CollisionGrid;
-};
-
-const getFovRequired = (pos: Vector3, vel: Vector3, otherPos: Vector3) => {
-  const dir = vel.clone().normalize();
-
-  const diff = otherPos.clone().sub(pos);
-  const targetDir = diff.clone().normalize();
-
-  return dir.clone().angleTo(targetDir);
+  separationGrid: ArrayGrid<number>;
+  alignmentGrid: ArrayGrid<number>;
+  cohesionGrid: ArrayGrid<number>;
 };
 
 const seek = (
@@ -61,7 +54,7 @@ const getSeparation = (
   let steerSum = new Vector3();
   let count = 0;
 
-  const otherIndices = worldPosToAdjCellValues(
+  const otherIndices = worldPosToAdjValueArr(
     pos,
     collisionGrids.separationGrid
   );
@@ -71,10 +64,8 @@ const getSeparation = (
     const otherPos = birdsData.posArr[otherIndex];
     const diff = pos.clone().sub(otherPos);
     const dist = diff.clone().length();
-    const angle = getFovRequired(pos, vel, otherPos);
 
-    if (dist > flocksContext.separationDist || angle > flocksContext.birdFov)
-      return;
+    if (dist > flocksContext.separationDist) return;
 
     const diffScl = diff.clone().divideScalar(dist * dist);
     steerSum.add(diffScl);
@@ -105,20 +96,15 @@ const getAlignment = (
   let velSum = new Vector3();
   let count = 0;
 
-  const otherIndices = worldPosToAdjCellValues(
-    pos,
-    collisionGrids.alignmentGrid
-  );
+  const otherIndices = worldPosToAdjValueArr(pos, collisionGrids.alignmentGrid);
 
   otherIndices.forEach((otherIndex) => {
     if (index === otherIndex) return;
 
     const otherPos = birdsData.posArr[otherIndex];
     const dist = pos.clone().distanceTo(otherPos);
-    const angle = getFovRequired(pos, vel, otherPos);
 
-    if (dist > flocksContext.alignmentDist || angle > flocksContext.birdFov)
-      return;
+    if (dist > flocksContext.alignmentDist) return;
 
     const otherVel = birdsData.velArr[otherIndex];
     velSum = velSum.clone().add(otherVel);
@@ -142,25 +128,19 @@ const getCohesion = (
   collisionGrids: CollisionGrids
 ) => {
   const pos = birdsData.posArr[index];
-  const vel = birdsData.velArr[index];
 
   let posSum = new Vector3();
   let count = 0;
 
-  const otherIndices = worldPosToAdjCellValues(
-    pos,
-    collisionGrids.cohesionGrid
-  );
+  const otherIndices = worldPosToAdjValueArr(pos, collisionGrids.cohesionGrid);
 
   otherIndices.forEach((otherIndex) => {
     if (index === otherIndex) return;
 
     const otherPos = birdsData.posArr[otherIndex];
     const dist = pos.clone().distanceTo(otherPos);
-    const angle = getFovRequired(pos, vel, otherPos);
 
-    if (dist > flocksContext.cohesionDist || angle > flocksContext.birdFov)
-      return;
+    if (dist > flocksContext.cohesionDist) return;
 
     posSum = posSum.clone().add(otherPos);
     count++;
@@ -177,8 +157,18 @@ const flock = (
   flocksContext: FlocksContextType,
   birdsData: BirdsData,
   draftBirdsData: BirdsData,
-  collisionGrids: CollisionGrids
+  collisionGrids: CollisionGrids,
+  lookupGrid: ValueGrid<Vector3>
 ) => {
+  const pos = birdsData.posArr[index];
+  const gridPos = worldPosToGridPos(pos, lookupGrid);
+  if (gridPos === null) return;
+  const lookupForce = gridPosToValue(gridPos, lookupGrid);
+  if (lookupForce) {
+    draftBirdsData.accArr[index].add(lookupForce);
+    return;
+  }
+
   const separation = getSeparation(
     index,
     flocksContext,
@@ -201,9 +191,14 @@ const flock = (
   );
   const cohesionScaled = cohesion.multiplyScalar(flocksContext.cohesionWeight);
 
-  draftBirdsData.accArr[index].add(separationScaled);
-  draftBirdsData.accArr[index].add(alignmentScaled);
-  draftBirdsData.accArr[index].add(cohesionScaled);
+  const force = new Vector3()
+    .add(separationScaled)
+    .add(alignmentScaled)
+    .add(cohesionScaled);
+
+  draftBirdsData.accArr[index].add(force);
+
+  setValue(gridPos, force, lookupGrid);
 };
 
 const softBorder = (
@@ -328,21 +323,21 @@ const updateGrids = (
   const pos = birdsData.posArr[index];
   const nextPos = draftBirdsData.posArr[index];
 
-  updateGrid(
+  updateArrayGrid(
     pos,
     nextPos,
     index,
     collisionGrids.separationGrid,
     draftCollisionsGrids.separationGrid
   );
-  updateGrid(
+  updateArrayGrid(
     pos,
     nextPos,
     index,
     collisionGrids.alignmentGrid,
     draftCollisionsGrids.alignmentGrid
   );
-  updateGrid(
+  updateArrayGrid(
     pos,
     nextPos,
     index,
@@ -351,19 +346,7 @@ const updateGrids = (
   );
 };
 
-const faceForward = (index: number, draftBirdsData: BirdsData) => {
-  const vel = draftBirdsData.velArr[index];
-
-  const rotQuarternion = new Quaternion().setFromUnitVectors(
-    new Vector3(0, 1, 0),
-    vel.clone().normalize()
-  );
-  const finalRot = new Euler().setFromQuaternion(rotQuarternion);
-  draftBirdsData.rotArr[index].set(finalRot.x, finalRot.y, finalRot.z);
-};
-
 export const update = (
-  index: number,
   flocksContext: FlocksContextType,
   birdsData: BirdsData,
   draftBirdsData: BirdsData,
@@ -371,16 +354,40 @@ export const update = (
   draftCollisionGrids: CollisionGrids,
   delta: number
 ) => {
-  flock(index, flocksContext, birdsData, draftBirdsData, collisionGrids);
-  softBorder(index, flocksContext, draftBirdsData);
-  hardBorder(index, flocksContext, draftBirdsData);
-  applyPhysics(index, draftBirdsData, delta);
-  faceForward(index, draftBirdsData);
-  updateGrids(
-    index,
-    birdsData,
-    draftBirdsData,
-    collisionGrids,
-    draftCollisionGrids
+  const lookupWorldDims = new Vector3(300, 300, 300);
+  const lookupWorldOffset = new Vector3(-150, -150, -150);
+  const lookupGrid = createValueGrid<Vector3>(
+    [],
+    lookupWorldDims,
+    lookupWorldOffset,
+    1
   );
+
+  for (let index = 0; index < flocksContext.numBirds; index++) {
+    if (
+      !birdsData.posArr[index] ||
+      !birdsData.velArr[index] ||
+      !birdsData.accArr[index]
+    )
+      continue;
+
+    flock(
+      index,
+      flocksContext,
+      birdsData,
+      draftBirdsData,
+      collisionGrids,
+      lookupGrid
+    );
+    softBorder(index, flocksContext, draftBirdsData);
+    hardBorder(index, flocksContext, draftBirdsData);
+    applyPhysics(index, draftBirdsData, delta);
+    updateGrids(
+      index,
+      birdsData,
+      draftBirdsData,
+      collisionGrids,
+      draftCollisionGrids
+    );
+  }
 };

@@ -13,8 +13,6 @@ export type FlocksContextType = {
   setMaxSpeed: Dispatch<SetStateAction<number>>;
   maxForce: number;
   setMaxForce: Dispatch<SetStateAction<number>>;
-  birdFov: number;
-  setBirdFov: Dispatch<SetStateAction<number>>;
   separationDist: number;
   setSeparationDist: Dispatch<SetStateAction<number>>;
   alignmentDist: number;
@@ -46,7 +44,6 @@ type Props = {
   initialSeparationWeight?: number;
   initialAlignmentWeight?: number;
   initialCohesionWeight?: number;
-  initialBirdFov?: number;
   initialMaxSpeed?: number;
   initialMaxForce?: number;
   initialBoundWidth?: number;
@@ -56,16 +53,15 @@ type Props = {
 
 const FlocksContextProvider: FC<Props> = ({
   children,
-  initialNumBirds = 300,
+  initialNumBirds = 1000,
   initialSeparationDist = 2,
-  initialAlignmentDist = 2,
-  initialCohesionDist = 2,
-  initialBirdFov = (3 * Math.PI) / 4,
+  initialAlignmentDist = 3,
+  initialCohesionDist = 4,
   initialMaxSpeed = 1000,
   initialMaxForce = 100000,
-  initialSeparationWeight = 1,
+  initialSeparationWeight = 2,
   initialAlignmentWeight = 1,
-  initialCohesionWeight = 0.9,
+  initialCohesionWeight = 1.2,
   initialBoundWidth = 40,
   initialBoundHeight = 40,
   initialBoundDepth = 40,
@@ -74,7 +70,6 @@ const FlocksContextProvider: FC<Props> = ({
   const [separationDist, setSeparationDist] = useState(initialSeparationDist);
   const [alignmentDist, setAlignmentDist] = useState(initialAlignmentDist);
   const [cohesionDist, setCohesionDist] = useState(initialCohesionDist);
-  const [birdFov, setBirdFov] = useState(initialBirdFov);
   const [maxSpeed, setMaxSpeed] = useState(initialMaxSpeed);
   const [maxForce, setMaxForce] = useState(initialMaxForce);
   const [separationWeight, setSeparationWeight] = useState(
@@ -99,8 +94,6 @@ const FlocksContextProvider: FC<Props> = ({
         setAlignmentDist,
         cohesionDist,
         setCohesionDist,
-        birdFov,
-        setBirdFov,
         maxSpeed,
         setMaxSpeed,
         maxForce,
