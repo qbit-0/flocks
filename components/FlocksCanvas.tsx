@@ -30,11 +30,7 @@ const FlocksCanvas = (props: Props) => {
         />
         <fog
           attach="fog"
-          args={[
-            theme.palette.canvasBg.main,
-            Math.max(50, worldDepth / 2),
-            Math.max(100, worldDepth * 2),
-          ]}
+          args={[theme.palette.canvasBg.main, 40, Math.max(80, worldDepth * 2)]}
         />
         <ambientLight intensity={0.5} />
         <pointLight

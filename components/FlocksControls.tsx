@@ -1,6 +1,15 @@
-import { Box, Link, Paper, Slider, Typography } from "@mui/material";
+import {
+  Box,
+  Divider,
+  Link,
+  Paper,
+  Slider,
+  Stack,
+  Typography,
+} from "@mui/material";
 import React, { useContext } from "react";
 import { FlocksContext } from "../utils/context/FlocksContextProvider";
+import ControlBox from "./ControlBox";
 
 type Props = {};
 
@@ -44,133 +53,190 @@ const FlocksControls = (props: Props) => {
 
   return (
     <Paper
-      sx={{ padding: 2, bgcolor: "transparent", backdropFilter: "blur(5px)" }}
+      variant="outlined"
+      sx={{
+        padding: 2,
+        bgcolor: "transparent",
+        backdropFilter: "blur(5px) brightness(50%)",
+      }}
     >
-      <Typography>{`Number of Birds: ${numBirds}`}</Typography>
-      <Slider
-        value={numBirds}
-        min={0}
-        max={1000}
-        step={100}
-        onChange={handleSliderChange(setNumBirds)}
-      />
+      <Stack spacing={1} divider={<Divider />}>
+        <ControlBox>
+          <Typography>{`Number of Birds: ${numBirds}`}</Typography>
+          <Slider
+            marks
+            valueLabelDisplay="auto"
+            value={numBirds}
+            min={0}
+            max={1000}
+            step={100}
+            onChange={handleSliderChange(setNumBirds)}
+          />
+        </ControlBox>
 
-      <Typography>{`Max Speed: ${maxSpeed}`}</Typography>
-      <Slider
-        value={maxSpeed}
-        min={500}
-        max={2000}
-        step={500}
-        onChange={handleSliderChange(setMaxSpeed)}
-      />
+        <ControlBox>
+          <Typography>{`Max Speed: ${maxSpeed}`}</Typography>
+          <Slider
+            marks
+            valueLabelDisplay="auto"
+            value={maxSpeed}
+            min={500}
+            max={2000}
+            step={500}
+            onChange={handleSliderChange(setMaxSpeed)}
+          />
+        </ControlBox>
 
-      <Typography>{`Steer Force: ${steerForce}`}</Typography>
-      <Slider
-        value={steerForce}
-        min={0}
-        max={400000}
-        step={50000}
-        onChange={handleSliderChange(setSteerForce)}
-      />
+        <ControlBox>
+          <Typography>{`Steer Force: ${steerForce}`}</Typography>
+          <Slider
+            marks
+            valueLabelDisplay="auto"
+            value={steerForce}
+            min={0}
+            max={400000}
+            step={50000}
+            onChange={handleSliderChange(setSteerForce)}
+          />
+        </ControlBox>
 
-      <Typography>{`Separation Distance: ${separationDist}`}</Typography>
-      <Slider
-        value={separationDist}
-        min={0}
-        max={5}
-        step={0.5}
-        onChange={handleSliderChange(setSeparationDist)}
-      />
+        <ControlBox>
+          <Typography>{`Separation Distance: ${separationDist}`}</Typography>
+          <Slider
+            marks
+            valueLabelDisplay="auto"
+            value={separationDist}
+            min={0}
+            max={5}
+            step={0.5}
+            onChange={handleSliderChange(setSeparationDist)}
+          />
+        </ControlBox>
 
-      <Typography>{`Alignment Distance: ${alignmentDist}`}</Typography>
-      <Slider
-        value={alignmentDist}
-        min={0}
-        max={5}
-        step={0.5}
-        onChange={handleSliderChange(setAlignmentDist)}
-      />
+        <ControlBox>
+          <Typography>{`Alignment Distance: ${alignmentDist}`}</Typography>
+          <Slider
+            marks
+            valueLabelDisplay="auto"
+            value={alignmentDist}
+            min={0}
+            max={5}
+            step={0.5}
+            onChange={handleSliderChange(setAlignmentDist)}
+          />
+        </ControlBox>
 
-      <Typography>{`Cohesion Distance: ${cohesionDist}`}</Typography>
-      <Slider
-        value={cohesionDist}
-        min={0}
-        max={5}
-        step={0.5}
-        onChange={handleSliderChange(setCohesionDist)}
-      />
+        <ControlBox>
+          <Typography>{`Cohesion Distance: ${cohesionDist}`}</Typography>
+          <Slider
+            marks
+            valueLabelDisplay="auto"
+            value={cohesionDist}
+            min={0}
+            max={5}
+            step={0.5}
+            onChange={handleSliderChange(setCohesionDist)}
+          />
+        </ControlBox>
 
-      <Typography>{`Separation Weight: ${separationWeight}`}</Typography>
-      <Slider
-        value={separationWeight}
-        min={0}
-        max={4}
-        step={0.1}
-        onChange={handleSliderChange(setSeparationWeight)}
-      />
+        <ControlBox>
+          <Typography>{`Separation Weight: ${separationWeight}`}</Typography>
+          <Slider
+            marks
+            valueLabelDisplay="auto"
+            value={separationWeight}
+            min={0}
+            max={4}
+            step={0.1}
+            onChange={handleSliderChange(setSeparationWeight)}
+          />
+        </ControlBox>
 
-      <Typography>{`Alignment Weight: ${alignmentWeight}`}</Typography>
-      <Slider
-        value={alignmentWeight}
-        min={0}
-        max={4}
-        step={0.1}
-        onChange={handleSliderChange(setAlignmentWeight)}
-      />
+        <ControlBox>
+          <Typography>{`Alignment Weight: ${alignmentWeight}`}</Typography>
+          <Slider
+            marks
+            valueLabelDisplay="auto"
+            value={alignmentWeight}
+            min={0}
+            max={4}
+            step={0.1}
+            onChange={handleSliderChange(setAlignmentWeight)}
+          />
+        </ControlBox>
 
-      <Typography>{`Cohesion Weight: ${cohesionWeight}`}</Typography>
-      <Slider
-        value={cohesionWeight}
-        min={0}
-        max={4}
-        step={0.1}
-        onChange={handleSliderChange(setCohesionWeight)}
-      />
+        <ControlBox>
+          <Typography>{`Cohesion Weight: ${cohesionWeight}`}</Typography>
+          <Slider
+            marks
+            valueLabelDisplay="auto"
+            value={cohesionWeight}
+            min={0}
+            max={4}
+            step={0.1}
+            onChange={handleSliderChange(setCohesionWeight)}
+          />
+        </ControlBox>
 
-      <Typography>{`World Width: ${worldWidth}`}</Typography>
-      <Slider
-        value={worldWidth}
-        min={10}
-        max={100}
-        step={10}
-        onChange={handleSliderChange(setWorldWidth)}
-      />
+        <ControlBox>
+          <Typography>{`World Width: ${worldWidth}`}</Typography>
+          <Slider
+            marks
+            valueLabelDisplay="auto"
+            value={worldWidth}
+            min={10}
+            max={100}
+            step={10}
+            onChange={handleSliderChange(setWorldWidth)}
+          />
+        </ControlBox>
 
-      <Typography>{`World Height: ${worldHeight}`}</Typography>
-      <Slider
-        value={worldHeight}
-        min={10}
-        max={100}
-        step={10}
-        onChange={handleSliderChange(setWorldHeight)}
-      />
+        <ControlBox>
+          <Typography>{`World Height: ${worldHeight}`}</Typography>
+          <Slider
+            marks
+            valueLabelDisplay="auto"
+            value={worldHeight}
+            min={10}
+            max={100}
+            step={10}
+            onChange={handleSliderChange(setWorldHeight)}
+          />
+        </ControlBox>
 
-      <Typography>{`World Depth: ${worldDepth}`}</Typography>
-      <Slider
-        value={worldDepth}
-        min={10}
-        max={100}
-        step={10}
-        onChange={handleSliderChange(setWorldDepth)}
-      />
+        <ControlBox>
+          <Typography>{`World Depth: ${worldDepth}`}</Typography>
+          <Slider
+            marks
+            valueLabelDisplay="auto"
+            value={worldDepth}
+            min={10}
+            max={100}
+            step={10}
+            onChange={handleSliderChange(setWorldDepth)}
+          />
+        </ControlBox>
 
-      <Typography variant="h6" fontWeight="bold" color="primary">
-        Created by{" "}
-        <Link
-          onClick={() => {
-            window.open("https://www.duypham.tech/", "_blank");
-          }}
-        >
-          Duy Pham.
-        </Link>{" "}
-        <Link
-          onClick={() => {
-            window.open("https://github.com/qbit-0/flocks", "_blank");
-          }}
-        >
-          Source code.
-        </Link>
-      </Typography>
+        <Box component="div" px={2}>
+          <Typography fontSize={24} fontWeight="bold" color="primary">
+            Created by{" "}
+            <Link
+              onClick={() => {
+                window.open("https://www.duypham.tech/", "_blank");
+              }}
+            >
+              Duy Pham.
+            </Link>{" "}
+            <Link
+              onClick={() => {
+                window.open("https://github.com/qbit-0/flocks", "_blank");
+              }}
+            >
+              Source code.
+            </Link>
+          </Typography>
+        </Box>
+      </Stack>
     </Paper>
   );
 };

@@ -14,7 +14,7 @@ const FlockDemo = (props: Props) => {
         position="absolute"
         padding={1}
         maxWidth="25vw"
-        height="90vh"
+        height="100vh"
         overflow="auto"
       >
         <FlocksControls />
