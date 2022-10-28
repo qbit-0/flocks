@@ -21,33 +21,6 @@ const FlockDemo = (props: Props) => {
       >
         <FlocksControls />
       </Box>
-
-      <Box
-        component="div"
-        display="flex"
-        justifyContent="center"
-        position="absolute"
-        width="100%"
-        bottom={4}
-      >
-        <Typography variant="h6" fontWeight="bold" color="primary">
-          Created by{" "}
-          <Link
-            onClick={() => {
-              window.open("https://www.duypham.tech/", "_blank");
-            }}
-          >
-            Duy Pham.
-          </Link>{" "}
-          <Link
-            onClick={() => {
-              window.open("https://github.com/qbit-0/flocks", "_blank");
-            }}
-          >
-            Source code.
-          </Link>
-        </Typography>
-      </Box>
     </FlocksContextProvider>
   );
 };

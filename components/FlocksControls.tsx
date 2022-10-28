@@ -1,4 +1,4 @@
-import { Box, Paper, Slider, Typography } from "@mui/material";
+import { Box, Link, Paper, Slider, Typography } from "@mui/material";
 import React, { useContext } from "react";
 import { FlocksContext } from "../utils/context/FlocksContextProvider";
 
@@ -153,6 +153,24 @@ const FlocksControls = (props: Props) => {
         step={10}
         onChange={handleSliderChange(setWorldDepth)}
       />
+
+      <Typography variant="h6" fontWeight="bold" color="primary">
+        Created by{" "}
+        <Link
+          onClick={() => {
+            window.open("https://www.duypham.tech/", "_blank");
+          }}
+        >
+          Duy Pham.
+        </Link>{" "}
+        <Link
+          onClick={() => {
+            window.open("https://github.com/qbit-0/flocks", "_blank");
+          }}
+        >
+          Source code.
+        </Link>
+      </Typography>
     </Paper>
   );
 };
