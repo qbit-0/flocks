@@ -14,7 +14,7 @@ const FlockDemo = (props: Props) => {
       <Box
         component="div"
         position="absolute"
-        padding={4}
+        padding={1}
         maxWidth="25vw"
         height="90vh"
         overflow="auto"
