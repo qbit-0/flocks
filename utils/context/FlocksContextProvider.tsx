@@ -11,8 +11,8 @@ export type FlocksContextType = {
   setNumBirds: Dispatch<SetStateAction<number>>;
   maxSpeed: number;
   setMaxSpeed: Dispatch<SetStateAction<number>>;
-  maxForce: number;
-  setMaxForce: Dispatch<SetStateAction<number>>;
+  steerForce: number;
+  setSteerForce: Dispatch<SetStateAction<number>>;
   separationDist: number;
   setSeparationDist: Dispatch<SetStateAction<number>>;
   alignmentDist: number;
@@ -54,14 +54,14 @@ type Props = {
 const FlocksContextProvider: FC<Props> = ({
   children,
   initialNumBirds = 1000,
-  initialSeparationDist = 2,
-  initialAlignmentDist = 3,
-  initialCohesionDist = 4,
+  initialSeparationDist = 2.5,
+  initialAlignmentDist = 2.5,
+  initialCohesionDist = 2.5,
   initialMaxSpeed = 1000,
   initialMaxForce = 100000,
-  initialSeparationWeight = 2,
-  initialAlignmentWeight = 1,
-  initialCohesionWeight = 1.2,
+  initialSeparationWeight = 1.5,
+  initialAlignmentWeight = 2,
+  initialCohesionWeight = 1.5,
   initialBoundWidth = 40,
   initialBoundHeight = 40,
   initialBoundDepth = 40,
@@ -71,7 +71,7 @@ const FlocksContextProvider: FC<Props> = ({
   const [alignmentDist, setAlignmentDist] = useState(initialAlignmentDist);
   const [cohesionDist, setCohesionDist] = useState(initialCohesionDist);
   const [maxSpeed, setMaxSpeed] = useState(initialMaxSpeed);
-  const [maxForce, setMaxForce] = useState(initialMaxForce);
+  const [steerForce, setSteerForce] = useState(initialMaxForce);
   const [separationWeight, setSeparationWeight] = useState(
     initialSeparationWeight
   );
@@ -96,8 +96,8 @@ const FlocksContextProvider: FC<Props> = ({
         setCohesionDist,
         maxSpeed,
         setMaxSpeed,
-        maxForce,
-        setMaxForce,
+        steerForce,
+        setSteerForce,
         separationWeight,
         setSeparationWeight,
         alignmentWeight,

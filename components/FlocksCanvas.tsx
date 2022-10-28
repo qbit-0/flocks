@@ -1,4 +1,3 @@
-import { Physics } from "@react-three/cannon";
 import {
   Environment,
   PerspectiveCamera,
@@ -10,7 +9,7 @@ import { useContext } from "react";
 import { FlocksContext } from "../utils/context/FlocksContextProvider";
 import Flocks from "./Flocks";
 
-const TILE_SIZE = 0.5;
+const TILE_SIZE = 1;
 
 type Props = {};
 

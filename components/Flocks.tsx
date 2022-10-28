@@ -34,7 +34,6 @@ const Flocks = ({}) => {
   const {
     numBirds,
     maxSpeed,
-    maxForce,
     separationDist,
     alignmentDist,
     cohesionDist,
@@ -52,6 +51,9 @@ const Flocks = ({}) => {
 
   const [instances, setInstances] = useState<React.ReactElement[]>();
 
+  const worldDims = new Vector3(200, 200, 200);
+  const worldOffset = new Vector3(-100, -100, -100);
+
   useEffect(() => {
     const nextPosArr: Vector3[] = [];
     const posCellValuePairs: [Vector3, number][] = [];
@@ -65,9 +67,6 @@ const Flocks = ({}) => {
       posCellValuePairs.push([pos, i]);
     }
     setPosArr(nextPosArr);
-
-    const worldDims = new Vector3(300, 300, 300);
-    const worldOffset = new Vector3(-150, -150, -150);
 
     const nextSeparationGrid = createArrayGrid(
       posCellValuePairs,
@@ -92,19 +91,65 @@ const Flocks = ({}) => {
       cohesionDist
     );
     setCohesionGrid(nextCohesionGrid);
-  }, [
-    numBirds,
-    separationDist,
-    alignmentDist,
-    cohesionDist,
-    worldWidth,
-    worldHeight,
-    worldDepth,
-  ]);
+  }, [numBirds]);
+
+  useEffect(() => {
+    if (posArr === undefined) return;
+
+    const posCellValuePairs: [Vector3, number][] = [];
+    for (let i = 0; i < numBirds; i++) {
+      const pos = posArr[i];
+      posCellValuePairs.push([pos, i]);
+    }
+
+    const nextSeparationGrid = createArrayGrid(
+      posCellValuePairs,
+      worldDims,
+      worldOffset,
+      separationDist
+    );
+    setSeparationGrid(nextSeparationGrid);
+  }, [separationDist]);
+
+  useEffect(() => {
+    if (posArr === undefined) return;
+
+    const posCellValuePairs: [Vector3, number][] = [];
+    for (let i = 0; i < numBirds; i++) {
+      const pos = posArr[i];
+      posCellValuePairs.push([pos, i]);
+    }
+
+    const nextAlignmentGrid = createArrayGrid(
+      posCellValuePairs,
+      worldDims,
+      worldOffset,
+      alignmentDist
+    );
+    setAlignmentGrid(nextAlignmentGrid);
+  }, [alignmentDist]);
+
+  useEffect(() => {
+    if (posArr === undefined) return;
+
+    const posCellValuePairs: [Vector3, number][] = [];
+    for (let i = 0; i < numBirds; i++) {
+      const pos = posArr[i];
+      posCellValuePairs.push([pos, i]);
+    }
+
+    const nextCohesionGrid = createArrayGrid(
+      posCellValuePairs,
+      worldDims,
+      worldOffset,
+      cohesionDist
+    );
+    setCohesionGrid(nextCohesionGrid);
+  }, [cohesionDist]);
 
   useEffect(() => {
     const nextVelArr: Vector3[] = [];
-    for (let i = nextVelArr.length; i < numBirds; i++) {
+    for (let i = 0; i < numBirds; i++) {
       const vel = new Vector3(
         randFloatSpread(2),
         randFloatSpread(2),
@@ -114,7 +159,7 @@ const Flocks = ({}) => {
     }
     nextVelArr.splice(numBirds);
     setVelArr(nextVelArr);
-  }, [numBirds, maxSpeed]);
+  }, [numBirds]);
 
   useFrame((state) => {
     if (

@@ -10,8 +10,8 @@ const FlocksControls = (props: Props) => {
     setNumBirds,
     maxSpeed,
     setMaxSpeed,
-    maxForce,
-    setMaxForce,
+    steerForce,
+    setSteerForce,
     separationDist,
     setSeparationDist,
     alignmentDist,
@@ -48,41 +48,53 @@ const FlocksControls = (props: Props) => {
       <Slider
         value={numBirds}
         min={0}
-        max={10000}
+        max={1000}
+        step={100}
         onChange={handleSliderChange(setNumBirds)}
       />
 
       <Typography>{`Max Speed: ${maxSpeed}`}</Typography>
       <Slider
         value={maxSpeed}
-        min={0}
-        max={20000}
+        min={500}
+        max={2000}
+        step={500}
         onChange={handleSliderChange(setMaxSpeed)}
       />
 
-      <Typography>{`Max Force: ${maxForce}`}</Typography>
+      <Typography>{`Steer Force: ${steerForce}`}</Typography>
       <Slider
-        value={maxForce}
+        value={steerForce}
         min={0}
-        max={600000}
-        onChange={handleSliderChange(setMaxForce)}
+        max={400000}
+        step={50000}
+        onChange={handleSliderChange(setSteerForce)}
       />
 
       <Typography>{`Separation Distance: ${separationDist}`}</Typography>
       <Slider
         value={separationDist}
+        min={0}
+        max={5}
+        step={0.5}
         onChange={handleSliderChange(setSeparationDist)}
       />
 
       <Typography>{`Alignment Distance: ${alignmentDist}`}</Typography>
       <Slider
         value={alignmentDist}
+        min={0}
+        max={5}
+        step={0.5}
         onChange={handleSliderChange(setAlignmentDist)}
       />
 
       <Typography>{`Cohesion Distance: ${cohesionDist}`}</Typography>
       <Slider
         value={cohesionDist}
+        min={0}
+        max={5}
+        step={0.5}
         onChange={handleSliderChange(setCohesionDist)}
       />
 
@@ -90,7 +102,7 @@ const FlocksControls = (props: Props) => {
       <Slider
         value={separationWeight}
         min={0}
-        max={2}
+        max={4}
         step={0.1}
         onChange={handleSliderChange(setSeparationWeight)}
       />
@@ -99,7 +111,7 @@ const FlocksControls = (props: Props) => {
       <Slider
         value={alignmentWeight}
         min={0}
-        max={2}
+        max={4}
         step={0.1}
         onChange={handleSliderChange(setAlignmentWeight)}
       />
@@ -108,7 +120,7 @@ const FlocksControls = (props: Props) => {
       <Slider
         value={cohesionWeight}
         min={0}
-        max={2}
+        max={4}
         step={0.1}
         onChange={handleSliderChange(setCohesionWeight)}
       />
@@ -118,7 +130,7 @@ const FlocksControls = (props: Props) => {
         value={worldWidth}
         min={10}
         max={100}
-        step={1}
+        step={10}
         onChange={handleSliderChange(setWorldWidth)}
       />
 
@@ -127,7 +139,7 @@ const FlocksControls = (props: Props) => {
         value={worldHeight}
         min={10}
         max={100}
-        step={1}
+        step={10}
         onChange={handleSliderChange(setWorldHeight)}
       />
 
@@ -136,7 +148,7 @@ const FlocksControls = (props: Props) => {
         value={worldDepth}
         min={10}
         max={100}
-        step={1}
+        step={10}
         onChange={handleSliderChange(setWorldDepth)}
       />
     </Box>
