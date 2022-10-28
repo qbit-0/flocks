@@ -15,7 +15,6 @@ export const BORDER_FORCE = 100000;
 export type BirdsData = {
   posArr: Vector3[];
   velArr: Vector3[];
-  accArr: Vector3[];
 };
 
 export type CollisionGrids = {
@@ -156,7 +155,7 @@ const flock = (
   index: number,
   flocksContext: FlocksContextType,
   birdsData: BirdsData,
-  draftBirdsData: BirdsData,
+  acc: Vector3,
   collisionGrids: CollisionGrids,
   lookupGrid: ValueGrid<Vector3>
 ) => {
@@ -165,7 +164,7 @@ const flock = (
   if (gridPos === null) return;
   const lookupForce = gridPosToValue(gridPos, lookupGrid);
   if (lookupForce) {
-    draftBirdsData.accArr[index].add(lookupForce);
+    acc.add(lookupForce);
     return;
   }
 
@@ -196,7 +195,7 @@ const flock = (
     .add(alignmentScaled)
     .add(cohesionScaled);
 
-  draftBirdsData.accArr[index].add(force);
+  acc.add(force);
 
   setValue(gridPos, force, lookupGrid);
 };
@@ -204,47 +203,36 @@ const flock = (
 const softBorder = (
   index: number,
   flocksContext: FlocksContextType,
-  draftBirdsData: BirdsData
+  draftBirdsData: BirdsData,
+  acc: Vector3
 ) => {
   const pos = draftBirdsData.posArr[index];
 
   if (pos.x < -flocksContext.worldWidth / 2 + BORDER_THICKNESS) {
     const dist = Math.max(1, -flocksContext.worldWidth / 2 - pos.x);
-    draftBirdsData.accArr[index].add(
-      new Vector3().setX(BORDER_FORCE).divideScalar(dist)
-    );
+    acc.add(new Vector3().setX(BORDER_FORCE).divideScalar(dist));
   }
   if (pos.x > flocksContext.worldWidth / 2 - BORDER_THICKNESS) {
     const dist = Math.max(1, flocksContext.worldWidth / 2 - pos.x);
-    draftBirdsData.accArr[index].add(
-      new Vector3().setX(-BORDER_FORCE).divideScalar(dist)
-    );
+    acc.add(new Vector3().setX(-BORDER_FORCE).divideScalar(dist));
   }
 
   if (pos.y < -flocksContext.worldHeight / 2 + BORDER_THICKNESS) {
     const dist = Math.max(1, -flocksContext.worldHeight / 2 - pos.y);
-    draftBirdsData.accArr[index].add(
-      new Vector3().setY(BORDER_FORCE).divideScalar(dist)
-    );
+    acc.add(new Vector3().setY(BORDER_FORCE).divideScalar(dist));
   }
   if (pos.y > flocksContext.worldHeight / 2 - BORDER_THICKNESS) {
     const dist = Math.max(1, flocksContext.worldHeight / 2 - pos.y);
-    draftBirdsData.accArr[index].add(
-      new Vector3().setY(-BORDER_FORCE).divideScalar(dist)
-    );
+    acc.add(new Vector3().setY(-BORDER_FORCE).divideScalar(dist));
   }
 
   if (pos.z < -flocksContext.worldDepth / 2 + BORDER_THICKNESS) {
     const dist = Math.max(1, -flocksContext.worldDepth / 2 - pos.z);
-    draftBirdsData.accArr[index].add(
-      new Vector3().setZ(BORDER_FORCE).divideScalar(dist)
-    );
+    acc.add(new Vector3().setZ(BORDER_FORCE).divideScalar(dist));
   }
   if (pos.z > flocksContext.worldDepth / 2 - BORDER_THICKNESS) {
     const dist = Math.max(1, flocksContext.worldDepth / 2 - pos.z);
-    draftBirdsData.accArr[index].add(
-      new Vector3().setZ(-BORDER_FORCE).divideScalar(dist)
-    );
+    acc.add(new Vector3().setZ(-BORDER_FORCE).divideScalar(dist));
   }
 };
 
@@ -299,18 +287,18 @@ const hardBorder = (
 const applyPhysics = (
   index: number,
   draftBirdsData: BirdsData,
+  acc: Vector3,
   delta: number
 ) => {
   const pos = draftBirdsData.posArr[index];
   const vel = draftBirdsData.velArr[index];
-  const acc = draftBirdsData.accArr[index];
 
   const finalVel = vel.clone().addScaledVector(acc, delta);
   const finalPos = pos.clone().addScaledVector(finalVel, delta);
 
   draftBirdsData.velArr[index].copy(finalVel);
   draftBirdsData.posArr[index].copy(finalPos);
-  draftBirdsData.accArr[index].set(0, 0, 0);
+  acc.set(0, 0, 0);
 };
 
 const updateGrids = (
@@ -364,24 +352,14 @@ export const update = (
   );
 
   for (let index = 0; index < flocksContext.numBirds; index++) {
-    if (
-      !birdsData.posArr[index] ||
-      !birdsData.velArr[index] ||
-      !birdsData.accArr[index]
-    )
-      continue;
+    if (!birdsData.posArr[index] || !birdsData.velArr[index]) continue;
 
-    flock(
-      index,
-      flocksContext,
-      birdsData,
-      draftBirdsData,
-      collisionGrids,
-      lookupGrid
-    );
-    softBorder(index, flocksContext, draftBirdsData);
+    const acc = new Vector3();
+
+    flock(index, flocksContext, birdsData, acc, collisionGrids, lookupGrid);
+    softBorder(index, flocksContext, draftBirdsData, acc);
     hardBorder(index, flocksContext, draftBirdsData);
-    applyPhysics(index, draftBirdsData, delta);
+    applyPhysics(index, draftBirdsData, acc, delta);
     updateGrids(
       index,
       birdsData,

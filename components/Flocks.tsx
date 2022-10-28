@@ -1,7 +1,7 @@
 import { Instance, Instances } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import produce from "immer";
-import { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Euler, Quaternion, Vector3 } from "three";
 import { randFloatSpread } from "three/src/math/MathUtils";
 import { ArrayGrid, createArrayGrid } from "../utils/arrayGrid";
@@ -45,11 +45,12 @@ const Flocks = ({}) => {
 
   const [posArr, setPosArr] = useState<Vector3[]>();
   const [velArr, setVelArr] = useState<Vector3[]>();
-  const [accArr, setAccArr] = useState<Vector3[]>();
 
   const [separationGrid, setSeparationGrid] = useState<ArrayGrid<number>>();
   const [alignmentGrid, setAlignmentGrid] = useState<ArrayGrid<number>>();
   const [cohesionGrid, setCohesionGrid] = useState<ArrayGrid<number>>();
+
+  const [instances, setInstances] = useState<React.ReactElement[]>();
 
   useEffect(() => {
     const nextPosArr: Vector3[] = [];
@@ -115,21 +116,10 @@ const Flocks = ({}) => {
     setVelArr(nextVelArr);
   }, [numBirds, maxSpeed]);
 
-  useEffect(() => {
-    const nextAccArr: Vector3[] = [];
-    for (let i = nextAccArr.length; i < numBirds; i++) {
-      const acc = new Vector3();
-      nextAccArr.push(acc);
-    }
-    nextAccArr.splice(numBirds);
-    setAccArr(nextAccArr);
-  }, [numBirds, maxForce]);
-
   useFrame((state) => {
     if (
       !posArr ||
       !velArr ||
-      !accArr ||
       !separationGrid ||
       !alignmentGrid ||
       !cohesionGrid
@@ -138,7 +128,7 @@ const Flocks = ({}) => {
 
     const delta = state.clock.getDelta();
 
-    const birdsData: BirdsData = { posArr, velArr, accArr };
+    const birdsData: BirdsData = { posArr, velArr };
 
     const collisionGrids: CollisionGrids = {
       separationGrid,
@@ -157,7 +147,6 @@ const Flocks = ({}) => {
 
         draftBirdsData.posArr = birdsData.posArr.map((pos) => pos.clone());
         draftBirdsData.velArr = birdsData.velArr.map((vel) => vel.clone());
-        draftBirdsData.accArr = birdsData.accArr.map(() => new Vector3());
 
         update(
           flocksContext,
@@ -172,30 +161,27 @@ const Flocks = ({}) => {
 
     setPosArr(nextStates.birdsData.posArr);
     setVelArr(nextStates.birdsData.velArr);
-    setAccArr(nextStates.birdsData.accArr);
     setSeparationGrid(nextStates.collisionGrids.separationGrid);
     setAlignmentGrid(nextStates.collisionGrids.alignmentGrid);
     setCohesionGrid(nextStates.collisionGrids.cohesionGrid);
-  });
 
-  const instances = useMemo(() => {
     const instances: React.ReactElement[] = [];
-    if (!posArr || !velArr) return null;
-
     for (let i = 0; i < numBirds; i++) {
-      if (!posArr[i] || !velArr[i]) continue;
-      const rot = getRotFromVel(velArr[i]);
+      const nextPos = nextStates.birdsData.posArr[i];
+      const nextVel = nextStates.birdsData.velArr[i];
+      if (!nextPos || !nextVel) continue;
+      const rot = getRotFromVel(nextVel);
 
       instances.push(
         <Instance
           key={i}
-          position={posArr[i].toArray()}
+          position={nextStates.birdsData.posArr[i].toArray()}
           rotation={rot.toArray()}
         />
       );
     }
-    return instances;
-  }, [numBirds, posArr]);
+    setInstances(instances);
+  });
 
   return (
     <Instances limit={10000}>
