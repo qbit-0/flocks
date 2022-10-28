@@ -29,7 +29,7 @@ const FlocksCanvas = (props: Props) => {
       <directionalLight position={[-100, 100, 100]} intensity={5} />
       <Environment preset="city" />
       <ScreenQuad position={[0, 0, -100]} scale={1000}>
-        <meshBasicMaterial color={theme.palette.background.main} />
+        <meshBasicMaterial color={theme.palette.canvasBg.main} />
       </ScreenQuad>
       <Plane
         args={[

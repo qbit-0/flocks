@@ -34,11 +34,7 @@ const Flocks = ({}) => {
   const theme = useTheme();
 
   const birdColors = useMemo<string[]>(
-    () => [
-      theme.palette.birdA.main,
-      theme.palette.birdB.main,
-      theme.palette.birdC.main,
-    ],
+    () => theme.palette.bird,
     [theme.palette]
   );
 
