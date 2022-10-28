@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import { Vector2, Vector3 } from "three";
 import { ArrayGrid, updateArrayGrid, worldPosToAdjValueArr } from "./arrayGrid";
 import { FlocksContextType } from "./context/FlocksContextProvider";
 import { worldPosToGridPos } from "./grid";
@@ -11,6 +11,9 @@ import {
 
 export const BORDER_THICKNESS = 5;
 export const BORDER_FORCE = 1000000;
+const MOUSE_AVOID_DIST = 5;
+const MOUSE_AVOID_FORCE = 2000000;
+const LOOKUP_GRID_CELL_SIZE = 2;
 
 export type BirdsData = {
   posArr: Vector3[];
@@ -150,10 +153,23 @@ const getCohesion = (
   return new Vector3();
 };
 
+const getAvoidMouse = (
+  index: number,
+  birdsData: BirdsData,
+  mousePos: Vector2
+) => {
+  const pos = birdsData.posArr[index];
+  const diff = pos.clone().sub(new Vector3(mousePos.x, mousePos.y, pos.z));
+  const dist = diff.clone().length();
+  if (dist > MOUSE_AVOID_DIST) return new Vector3();
+  return diff.clone().setLength(MOUSE_AVOID_FORCE).divideScalar(dist);
+};
+
 const flock = (
   index: number,
   flocksContext: FlocksContextType,
   birdsData: BirdsData,
+  mousePos: Vector2,
   acc: Vector3,
   collisionGrids: CollisionGrids,
   lookupGrid: ValueGrid<Vector3>
@@ -180,6 +196,7 @@ const flock = (
     collisionGrids
   );
   const cohesion = getCohesion(index, flocksContext, birdsData, collisionGrids);
+  const avoidMouse = getAvoidMouse(index, birdsData, mousePos);
 
   const separationScaled = separation.multiplyScalar(
     flocksContext.separationWeight
@@ -192,7 +209,8 @@ const flock = (
   const force = new Vector3()
     .add(separationScaled)
     .add(alignmentScaled)
-    .add(cohesionScaled);
+    .add(cohesionScaled)
+    .add(avoidMouse);
 
   acc.add(force);
 
@@ -343,7 +361,8 @@ export const update = (
   draftBirdsData: BirdsData,
   collisionGrids: CollisionGrids,
   draftCollisionGrids: CollisionGrids,
-  delta: number
+  delta: number,
+  mousePos: Vector2
 ) => {
   const lookupWorldDims = new Vector3(200, 200, 200);
   const lookupWorldOffset = new Vector3(-100, -100, -100);
@@ -351,7 +370,7 @@ export const update = (
     [],
     lookupWorldDims,
     lookupWorldOffset,
-    2
+    LOOKUP_GRID_CELL_SIZE
   );
 
   for (let index = 0; index < flocksContext.numBirds; index++) {
@@ -359,7 +378,15 @@ export const update = (
 
     const acc = new Vector3();
 
-    flock(index, flocksContext, birdsData, acc, collisionGrids, lookupGrid);
+    flock(
+      index,
+      flocksContext,
+      birdsData,
+      mousePos,
+      acc,
+      collisionGrids,
+      lookupGrid
+    );
     softBorder(index, flocksContext, draftBirdsData, acc);
     hardBorder(index, flocksContext, draftBirdsData);
     applyPhysics(index, flocksContext, draftBirdsData, acc, delta);

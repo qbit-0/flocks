@@ -1,9 +1,9 @@
 import { useTheme } from "@mui/material";
 import { Instance, Instances } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import produce from "immer";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { Euler, Quaternion, Vector3 } from "three";
+import { Euler, Quaternion, Vector2, Vector3 } from "three";
 import { randFloatSpread } from "three/src/math/MathUtils";
 import { themeOptions } from "../styles/theme";
 import { ArrayGrid, createArrayGrid } from "../utils/arrayGrid";
@@ -163,6 +163,8 @@ const Flocks = ({}) => {
     setVelArr(nextVelArr);
   }, [numBirds]);
 
+  const viewport = useThree((state) => state.viewport);
+
   useFrame((state) => {
     if (
       !posArr ||
@@ -174,6 +176,10 @@ const Flocks = ({}) => {
       return;
 
     const delta = state.clock.getDelta();
+    const mousePos = new Vector2(
+      (state.mouse.x * viewport.width) / 2,
+      (state.mouse.y * viewport.height) / 2
+    );
 
     const birdsData: BirdsData = { posArr, velArr };
 
@@ -201,7 +207,8 @@ const Flocks = ({}) => {
           draftBirdsData,
           collisionGrids,
           draftCollisionGrids,
-          delta
+          delta,
+          mousePos
         );
       }
     );
