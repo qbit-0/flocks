@@ -1,4 +1,5 @@
 import { Box, Link, Typography } from "@mui/material";
+import { Loader } from "@react-three/drei";
 import React from "react";
 import FlocksContextProvider from "../utils/context/FlocksContextProvider";
 import FlocksCanvas from "./FlocksCanvas";
