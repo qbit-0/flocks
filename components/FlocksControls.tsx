@@ -1,4 +1,7 @@
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Button,
   Divider,
@@ -14,36 +17,12 @@ import {
 import React, { useContext, useState } from "react";
 import { FlocksContext } from "../utils/context/FlocksContextProvider";
 import ControlBox from "./ControlBox";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 type Props = {};
 
 const FlocksControls = (props: Props) => {
-  const {
-    numBirds,
-    setNumBirds,
-    maxSpeed,
-    setMaxSpeed,
-    steerForce,
-    setSteerForce,
-    separationDist,
-    setSeparationDist,
-    alignmentDist,
-    setAlignmentDist,
-    cohesionDist,
-    setCohesionDist,
-    separationWeight,
-    setSeparationWeight,
-    alignmentWeight,
-    setAlignmentWeight,
-    cohesionWeight,
-    setCohesionWeight,
-    worldWidth,
-    setWorldWidth,
-    worldHeight,
-    setWorldHeight,
-    worldDepth,
-    setWorldDepth,
-  } = useContext(FlocksContext);
+  const flocksContext = useContext(FlocksContext);
 
   const [open, setOpen] = useState(false);
 
@@ -82,7 +61,7 @@ const FlocksControls = (props: Props) => {
           },
         }}
       >
-        <Stack spacing={1} divider={<Divider />}>
+        <Stack spacing={1}>
           <Button
             onClick={() => {
               setOpen(false);
@@ -90,161 +69,248 @@ const FlocksControls = (props: Props) => {
           >
             close
           </Button>
-          <ControlBox>
-            <Typography>{`Number of Birds: ${numBirds}`}</Typography>
-            <Slider
-              marks
-              valueLabelDisplay="auto"
-              value={numBirds}
-              min={0}
-              max={1000}
-              step={100}
-              onChange={handleSliderChange(setNumBirds)}
-            />
-          </ControlBox>
 
-          <ControlBox>
-            <Typography>{`Max Speed: ${maxSpeed}`}</Typography>
-            <Slider
-              marks
-              valueLabelDisplay="auto"
-              value={maxSpeed}
-              min={500}
-              max={2000}
-              step={500}
-              onChange={handleSliderChange(setMaxSpeed)}
-            />
-          </ControlBox>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography>Global </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ControlBox>
+                <Typography>{`Number of Birds: ${flocksContext.numBirds}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.numBirds}
+                  min={0}
+                  max={1000}
+                  step={100}
+                  onChange={handleSliderChange(flocksContext.setNumBirds)}
+                />
+              </ControlBox>
 
-          <ControlBox>
-            <Typography>{`Steer Force: ${steerForce}`}</Typography>
-            <Slider
-              marks
-              valueLabelDisplay="auto"
-              value={steerForce}
-              min={0}
-              max={400000}
-              step={50000}
-              onChange={handleSliderChange(setSteerForce)}
-            />
-          </ControlBox>
+              <ControlBox>
+                <Typography>{`Max Speed: ${flocksContext.maxSpeed}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.maxSpeed}
+                  min={500}
+                  max={2000}
+                  step={500}
+                  onChange={handleSliderChange(flocksContext.setMaxSpeed)}
+                />
+              </ControlBox>
+            </AccordionDetails>
+          </Accordion>
 
-          <ControlBox>
-            <Typography>{`Separation Distance: ${separationDist}`}</Typography>
-            <Slider
-              marks
-              valueLabelDisplay="auto"
-              value={separationDist}
-              min={0}
-              max={5}
-              step={0.5}
-              onChange={handleSliderChange(setSeparationDist)}
-            />
-          </ControlBox>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography>Mouse</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ControlBox>
+                <Typography>{`Mouse Push Force: ${flocksContext.mousePushForce}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.mousePushForce}
+                  min={-4000000}
+                  max={4000000}
+                  step={500000}
+                  onChange={handleSliderChange(flocksContext.setMousePushForce)}
+                />
+              </ControlBox>
 
-          <ControlBox>
-            <Typography>{`Alignment Distance: ${alignmentDist}`}</Typography>
-            <Slider
-              marks
-              valueLabelDisplay="auto"
-              value={alignmentDist}
-              min={0}
-              max={5}
-              step={0.5}
-              onChange={handleSliderChange(setAlignmentDist)}
-            />
-          </ControlBox>
+              <ControlBox>
+                <Typography>{`Mouse Push Distance: ${flocksContext.mousePushDist}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.mousePushDist}
+                  min={0}
+                  max={10}
+                  step={0.5}
+                  onChange={handleSliderChange(flocksContext.setMousePushDist)}
+                />
+              </ControlBox>
+            </AccordionDetails>
+          </Accordion>
 
-          <ControlBox>
-            <Typography>{`Cohesion Distance: ${cohesionDist}`}</Typography>
-            <Slider
-              marks
-              valueLabelDisplay="auto"
-              value={cohesionDist}
-              min={0}
-              max={5}
-              step={0.5}
-              onChange={handleSliderChange(setCohesionDist)}
-            />
-          </ControlBox>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography>Flocking</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ControlBox>
+                <Typography>{`Steer Force: ${flocksContext.steerForce}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.steerForce}
+                  min={0}
+                  max={400000}
+                  step={50000}
+                  onChange={handleSliderChange(flocksContext.setSteerForce)}
+                />
+              </ControlBox>
 
-          <ControlBox>
-            <Typography>{`Separation Weight: ${separationWeight}`}</Typography>
-            <Slider
-              marks
-              valueLabelDisplay="auto"
-              value={separationWeight}
-              min={0}
-              max={4}
-              step={0.1}
-              onChange={handleSliderChange(setSeparationWeight)}
-            />
-          </ControlBox>
+              <ControlBox>
+                <Typography>{`Separation Distance: ${flocksContext.separationDist}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.separationDist}
+                  min={0}
+                  max={5}
+                  step={0.5}
+                  onChange={handleSliderChange(flocksContext.setSeparationDist)}
+                />
+              </ControlBox>
 
-          <ControlBox>
-            <Typography>{`Alignment Weight: ${alignmentWeight}`}</Typography>
-            <Slider
-              marks
-              valueLabelDisplay="auto"
-              value={alignmentWeight}
-              min={0}
-              max={4}
-              step={0.1}
-              onChange={handleSliderChange(setAlignmentWeight)}
-            />
-          </ControlBox>
+              <ControlBox>
+                <Typography>{`Alignment Distance: ${flocksContext.alignmentDist}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.alignmentDist}
+                  min={0}
+                  max={5}
+                  step={0.5}
+                  onChange={handleSliderChange(flocksContext.setAlignmentDist)}
+                />
+              </ControlBox>
 
-          <ControlBox>
-            <Typography>{`Cohesion Weight: ${cohesionWeight}`}</Typography>
-            <Slider
-              marks
-              valueLabelDisplay="auto"
-              value={cohesionWeight}
-              min={0}
-              max={4}
-              step={0.1}
-              onChange={handleSliderChange(setCohesionWeight)}
-            />
-          </ControlBox>
+              <ControlBox>
+                <Typography>{`Cohesion Distance: ${flocksContext.cohesionDist}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.cohesionDist}
+                  min={0}
+                  max={5}
+                  step={0.5}
+                  onChange={handleSliderChange(flocksContext.setCohesionDist)}
+                />
+              </ControlBox>
 
-          <ControlBox>
-            <Typography>{`World Width: ${worldWidth}`}</Typography>
-            <Slider
-              marks
-              valueLabelDisplay="auto"
-              value={worldWidth}
-              min={10}
-              max={100}
-              step={10}
-              onChange={handleSliderChange(setWorldWidth)}
-            />
-          </ControlBox>
+              <ControlBox>
+                <Typography>{`Separation Weight: ${flocksContext.separationWeight}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.separationWeight}
+                  min={0}
+                  max={4}
+                  step={0.1}
+                  onChange={handleSliderChange(
+                    flocksContext.setSeparationWeight
+                  )}
+                />
+              </ControlBox>
 
-          <ControlBox>
-            <Typography>{`World Height: ${worldHeight}`}</Typography>
-            <Slider
-              marks
-              valueLabelDisplay="auto"
-              value={worldHeight}
-              min={10}
-              max={100}
-              step={10}
-              onChange={handleSliderChange(setWorldHeight)}
-            />
-          </ControlBox>
+              <ControlBox>
+                <Typography>{`Alignment Weight: ${flocksContext.alignmentWeight}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.alignmentWeight}
+                  min={0}
+                  max={4}
+                  step={0.1}
+                  onChange={handleSliderChange(
+                    flocksContext.setAlignmentWeight
+                  )}
+                />
+              </ControlBox>
 
-          <ControlBox>
-            <Typography>{`World Depth: ${worldDepth}`}</Typography>
-            <Slider
-              marks
-              valueLabelDisplay="auto"
-              value={worldDepth}
-              min={10}
-              max={100}
-              step={10}
-              onChange={handleSliderChange(setWorldDepth)}
-            />
-          </ControlBox>
+              <ControlBox>
+                <Typography>{`Cohesion Weight: ${flocksContext.cohesionWeight}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.cohesionWeight}
+                  min={0}
+                  max={4}
+                  step={0.1}
+                  onChange={handleSliderChange(flocksContext.setCohesionWeight)}
+                />
+              </ControlBox>
+            </AccordionDetails>
+          </Accordion>
+
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography>World</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ControlBox>
+                <Typography>{`World Width: ${flocksContext.worldWidth}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.worldWidth}
+                  min={10}
+                  max={100}
+                  step={10}
+                  onChange={handleSliderChange(flocksContext.setWorldWidth)}
+                />
+              </ControlBox>
+
+              <ControlBox>
+                <Typography>{`World Height: ${flocksContext.worldHeight}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.worldHeight}
+                  min={10}
+                  max={100}
+                  step={10}
+                  onChange={handleSliderChange(flocksContext.setWorldHeight)}
+                />
+              </ControlBox>
+
+              <ControlBox>
+                <Typography>{`World Depth: ${flocksContext.worldDepth}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.worldDepth}
+                  min={10}
+                  max={100}
+                  step={10}
+                  onChange={handleSliderChange(flocksContext.setWorldDepth)}
+                />
+              </ControlBox>
+
+              <ControlBox>
+                <Typography>{`Border Push Force: ${flocksContext.borderPushForce}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.borderPushForce}
+                  min={0}
+                  max={2000000}
+                  step={100000}
+                  onChange={handleSliderChange(
+                    flocksContext.setBorderPushForce
+                  )}
+                />
+              </ControlBox>
+
+              <ControlBox>
+                <Typography>{`Border Push Distance: ${flocksContext.borderPushDist}`}</Typography>
+                <Slider
+                  marks
+                  valueLabelDisplay="auto"
+                  value={flocksContext.borderPushDist}
+                  min={0}
+                  max={20}
+                  step={0.5}
+                  onChange={handleSliderChange(flocksContext.setBorderPushDist)}
+                />
+              </ControlBox>
+            </AccordionDetails>
+          </Accordion>
 
           <Box component="div" px={2}>
             <Typography fontSize={24} fontWeight="bold" color="primary">

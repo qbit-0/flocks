@@ -11,6 +11,10 @@ export type FlocksContextType = {
   setNumBirds: Dispatch<SetStateAction<number>>;
   maxSpeed: number;
   setMaxSpeed: Dispatch<SetStateAction<number>>;
+  mousePushForce: number;
+  setMousePushForce: Dispatch<SetStateAction<number>>;
+  mousePushDist: number;
+  setMousePushDist: Dispatch<SetStateAction<number>>;
   steerForce: number;
   setSteerForce: Dispatch<SetStateAction<number>>;
   separationDist: number;
@@ -31,6 +35,10 @@ export type FlocksContextType = {
   setWorldHeight: Dispatch<SetStateAction<number>>;
   worldDepth: number;
   setWorldDepth: Dispatch<SetStateAction<number>>;
+  borderPushForce: number;
+  setBorderPushForce: Dispatch<SetStateAction<number>>;
+  borderPushDist: number;
+  setBorderPushDist: Dispatch<SetStateAction<number>>;
 };
 
 export const FlocksContext = createContext<FlocksContextType>({} as any);
@@ -38,40 +46,52 @@ export const FlocksContext = createContext<FlocksContextType>({} as any);
 type Props = {
   children: React.ReactNode;
   initialNumBirds?: number;
+  initialMaxSpeed?: number;
+  initialMousePushForce?: number;
+  initialMousePushDist?: number;
+  initialSteerForce?: number;
   initialSeparationDist?: number;
   initialAlignmentDist?: number;
   initialCohesionDist?: number;
   initialSeparationWeight?: number;
   initialAlignmentWeight?: number;
   initialCohesionWeight?: number;
-  initialMaxSpeed?: number;
-  initialMaxForce?: number;
-  initialBoundWidth?: number;
-  initialBoundHeight?: number;
-  initialBoundDepth?: number;
+  initialWorldWidth?: number;
+  initialWorldHeight?: number;
+  initialWorldDepth?: number;
+  initialBorderPushForce?: number;
+  initialBorderPushDist?: number;
 };
 
 const FlocksContextProvider: FC<Props> = ({
   children,
   initialNumBirds = 500,
+  initialMaxSpeed = 1000,
+  initialMousePushForce = 2000000,
+  initialMousePushDist = 5,
+  initialSteerForce = 100000,
   initialSeparationDist = 2.5,
   initialAlignmentDist = 2.5,
   initialCohesionDist = 2.5,
-  initialMaxSpeed = 1000,
-  initialMaxForce = 100000,
   initialSeparationWeight = 1.5,
   initialAlignmentWeight = 2,
   initialCohesionWeight = 1.5,
-  initialBoundWidth = 40,
-  initialBoundHeight = 40,
-  initialBoundDepth = 40,
+  initialWorldWidth = 40,
+  initialWorldHeight = 40,
+  initialWorldDepth = 40,
+  initialBorderPushForce = 1000000,
+  initialBorderPushDist = 10,
 }) => {
   const [numBirds, setNumBirds] = useState(initialNumBirds);
+  const [maxSpeed, setMaxSpeed] = useState(initialMaxSpeed);
+
+  const [mousePushForce, setMousePushForce] = useState(initialMousePushForce);
+  const [mousePushDist, setMousePushDist] = useState(initialMousePushDist);
+
+  const [steerForce, setSteerForce] = useState(initialSteerForce);
   const [separationDist, setSeparationDist] = useState(initialSeparationDist);
   const [alignmentDist, setAlignmentDist] = useState(initialAlignmentDist);
   const [cohesionDist, setCohesionDist] = useState(initialCohesionDist);
-  const [maxSpeed, setMaxSpeed] = useState(initialMaxSpeed);
-  const [steerForce, setSteerForce] = useState(initialMaxForce);
   const [separationWeight, setSeparationWeight] = useState(
     initialSeparationWeight
   );
@@ -79,25 +99,34 @@ const FlocksContextProvider: FC<Props> = ({
     initialAlignmentWeight
   );
   const [cohesionWeight, setCohesionWeight] = useState(initialCohesionWeight);
-  const [worldWidth, setWorldWidth] = useState(initialBoundWidth);
-  const [worldHeight, setWorldHeight] = useState(initialBoundHeight);
-  const [worldDepth, setWorldDepth] = useState(initialBoundDepth);
+
+  const [worldWidth, setWorldWidth] = useState(initialWorldWidth);
+  const [worldHeight, setWorldHeight] = useState(initialWorldHeight);
+  const [worldDepth, setWorldDepth] = useState(initialWorldDepth);
+  const [borderPushForce, setBorderPushForce] = useState(
+    initialBorderPushForce
+  );
+  const [borderPushDist, setBorderPushDist] = useState(initialBorderPushDist);
 
   return (
     <FlocksContext.Provider
       value={{
         numBirds,
         setNumBirds,
+        maxSpeed,
+        setMaxSpeed,
+        mousePushForce,
+        setMousePushForce,
+        mousePushDist,
+        setMousePushDist,
+        steerForce,
+        setSteerForce,
         separationDist,
         setSeparationDist,
         alignmentDist,
         setAlignmentDist,
         cohesionDist,
         setCohesionDist,
-        maxSpeed,
-        setMaxSpeed,
-        steerForce,
-        setSteerForce,
         separationWeight,
         setSeparationWeight,
         alignmentWeight,
@@ -110,6 +139,10 @@ const FlocksContextProvider: FC<Props> = ({
         setWorldHeight,
         worldDepth,
         setWorldDepth,
+        borderPushForce,
+        setBorderPushForce,
+        borderPushDist,
+        setBorderPushDist,
       }}
     >
       {children}

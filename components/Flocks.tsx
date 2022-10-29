@@ -2,18 +2,12 @@ import { useTheme } from "@mui/material";
 import { Instance, Instances } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import produce from "immer";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Euler, Quaternion, Vector2, Vector3 } from "three";
 import { randFloatSpread } from "three/src/math/MathUtils";
-import { themeOptions } from "../styles/theme";
 import { ArrayGrid, createArrayGrid } from "../utils/arrayGrid";
 import { FlocksContext } from "../utils/context/FlocksContextProvider";
-import {
-  BirdsData,
-  BORDER_THICKNESS,
-  CollisionGrids,
-  update,
-} from "../utils/updateFlock";
+import { BirdsData, CollisionGrids, update } from "../utils/updateFlock";
 
 const BIRD_GEOMETRY = <coneGeometry args={[0.25, 0.5, 5, 1, false]} />;
 const BIRD_MATERIAL = <meshStandardMaterial roughness={1} metalness={0} />;
@@ -61,9 +55,9 @@ const Flocks = ({}) => {
     const posCellValuePairs: [Vector3, number][] = [];
     for (let i = 0; i < numBirds; i++) {
       const pos = new Vector3(
-        randFloatSpread(worldWidth - BORDER_THICKNESS * 2),
-        randFloatSpread(worldHeight - BORDER_THICKNESS * 2),
-        randFloatSpread(worldDepth - BORDER_THICKNESS * 2)
+        randFloatSpread(worldWidth),
+        randFloatSpread(worldHeight),
+        randFloatSpread(worldDepth)
       );
       nextPosArr.push(pos);
       posCellValuePairs.push([pos, i]);

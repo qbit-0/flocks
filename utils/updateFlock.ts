@@ -9,10 +9,6 @@ import {
   ValueGrid,
 } from "./valueGrid";
 
-export const BORDER_THICKNESS = 5;
-export const BORDER_FORCE = 1000000;
-const MOUSE_AVOID_DIST = 5;
-const MOUSE_AVOID_FORCE = 2000000;
 const LOOKUP_GRID_CELL_SIZE = 2;
 
 export type BirdsData = {
@@ -153,16 +149,20 @@ const getCohesion = (
   return new Vector3();
 };
 
-const getAvoidMouse = (
+const getMousePush = (
   index: number,
+  flocksContext: FlocksContextType,
   birdsData: BirdsData,
   mousePos: Vector2
 ) => {
   const pos = birdsData.posArr[index];
   const diff = pos.clone().sub(new Vector3(mousePos.x, mousePos.y, pos.z));
   const dist = diff.clone().length();
-  if (dist > MOUSE_AVOID_DIST) return new Vector3();
-  return diff.clone().setLength(MOUSE_AVOID_FORCE).divideScalar(dist);
+  if (dist > flocksContext.mousePushDist) return new Vector3();
+  return diff
+    .clone()
+    .setLength(flocksContext.mousePushForce)
+    .divideScalar(Math.max(1, dist));
 };
 
 const flock = (
@@ -196,7 +196,7 @@ const flock = (
     collisionGrids
   );
   const cohesion = getCohesion(index, flocksContext, birdsData, collisionGrids);
-  const avoidMouse = getAvoidMouse(index, birdsData, mousePos);
+  const avoidMouse = getMousePush(index, flocksContext, birdsData, mousePos);
 
   const separationScaled = separation.multiplyScalar(
     flocksContext.separationWeight
@@ -225,31 +225,43 @@ const softBorder = (
 ) => {
   const pos = draftBirdsData.posArr[index];
 
-  if (pos.x < -flocksContext.worldWidth / 2 + BORDER_THICKNESS) {
+  if (pos.x < -flocksContext.worldWidth / 2 + flocksContext.borderPushDist) {
     const dist = Math.max(0.1, pos.x + flocksContext.worldWidth / 2);
-    acc.add(new Vector3().setX(BORDER_FORCE).divideScalar(dist));
+    acc.add(
+      new Vector3().setX(flocksContext.borderPushForce).divideScalar(dist)
+    );
   }
-  if (pos.x > flocksContext.worldWidth / 2 - BORDER_THICKNESS) {
+  if (pos.x > flocksContext.worldWidth / 2 - flocksContext.borderPushDist) {
     const dist = Math.max(0.1, flocksContext.worldWidth / 2 - pos.x);
-    acc.add(new Vector3().setX(-BORDER_FORCE).divideScalar(dist));
+    acc.add(
+      new Vector3().setX(-flocksContext.borderPushForce).divideScalar(dist)
+    );
   }
 
-  if (pos.y < -flocksContext.worldHeight / 2 + BORDER_THICKNESS) {
+  if (pos.y < -flocksContext.worldHeight / 2 + flocksContext.borderPushDist) {
     const dist = Math.max(0.1, pos.y + flocksContext.worldHeight / 2);
-    acc.add(new Vector3().setY(BORDER_FORCE).divideScalar(dist));
+    acc.add(
+      new Vector3().setY(flocksContext.borderPushForce).divideScalar(dist)
+    );
   }
-  if (pos.y > flocksContext.worldHeight / 2 - BORDER_THICKNESS) {
+  if (pos.y > flocksContext.worldHeight / 2 - flocksContext.borderPushDist) {
     const dist = Math.max(0.1, flocksContext.worldHeight / 2 - pos.y);
-    acc.add(new Vector3().setY(-BORDER_FORCE).divideScalar(dist));
+    acc.add(
+      new Vector3().setY(-flocksContext.borderPushForce).divideScalar(dist)
+    );
   }
 
-  if (pos.z < -flocksContext.worldDepth / 2 + BORDER_THICKNESS) {
+  if (pos.z < -flocksContext.worldDepth / 2 + flocksContext.borderPushDist) {
     const dist = Math.max(0.1, pos.z + flocksContext.worldDepth / 2);
-    acc.add(new Vector3().setZ(BORDER_FORCE).divideScalar(dist));
+    acc.add(
+      new Vector3().setZ(flocksContext.borderPushForce).divideScalar(dist)
+    );
   }
-  if (pos.z > flocksContext.worldDepth / 2 - BORDER_THICKNESS) {
+  if (pos.z > flocksContext.worldDepth / 2 - flocksContext.borderPushDist) {
     const dist = Math.max(0.1, flocksContext.worldDepth / 2 - pos.z);
-    acc.add(new Vector3().setZ(-BORDER_FORCE).divideScalar(dist));
+    acc.add(
+      new Vector3().setZ(-flocksContext.borderPushForce).divideScalar(dist)
+    );
   }
 };
 
