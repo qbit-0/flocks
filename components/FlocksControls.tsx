@@ -71,7 +71,9 @@ const FlocksControls = (props: Props) => {
       </Box>
       <Drawer
         open={open}
-        hideBackdrop
+        onClose={() => {
+          setOpen(false);
+        }}
         PaperProps={{
           sx: {
             p: 2,
