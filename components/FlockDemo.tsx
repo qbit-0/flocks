@@ -1,4 +1,3 @@
-import { Box } from "@mui/material";
 import FlocksContextProvider from "../utils/context/FlocksContextProvider";
 import FlocksCanvas from "./FlocksCanvas";
 import FlocksControls from "./FlocksControls";
@@ -9,16 +8,7 @@ const FlockDemo = (props: Props) => {
   return (
     <FlocksContextProvider>
       <FlocksCanvas />
-      <Box
-        component="div"
-        position="absolute"
-        padding={1}
-        maxWidth="25vw"
-        height="100vh"
-        overflow="auto"
-      >
-        <FlocksControls />
-      </Box>
+      <FlocksControls />
     </FlocksContextProvider>
   );
 };
