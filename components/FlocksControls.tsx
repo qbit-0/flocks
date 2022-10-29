@@ -5,6 +5,7 @@ import {
   Drawer,
   Link,
   Paper,
+  SlideProps,
   Slider,
   Stack,
   SwipeableDrawer,
@@ -71,11 +72,11 @@ const FlocksControls = (props: Props) => {
       <Drawer
         open={open}
         hideBackdrop
-        SlideProps={{
+        PaperProps={{
           sx: {
-            padding: 2,
+            p: 2,
             bgcolor: "transparent",
-            backdropFilter: "blur(5px) brightness(50%)",
+            backdropFilter: "blur(5px) brightness(10%)",
           },
         }}
       >

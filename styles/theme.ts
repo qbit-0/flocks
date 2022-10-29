@@ -44,7 +44,7 @@ export const themeOptions: ThemeOptions = {
   palette: {
     mode: "dark",
     primary: {
-      main: "#F06292",
+      main: "#FFF",
     },
     canvasBg: {
       main: "#455A64",
