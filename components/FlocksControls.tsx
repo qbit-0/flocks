@@ -1,23 +1,19 @@
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Box,
   Button,
-  Divider,
   Drawer,
   Link,
-  Paper,
-  SlideProps,
   Slider,
   Stack,
-  SwipeableDrawer,
   Typography,
 } from "@mui/material";
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { FlocksContext } from "../utils/context/FlocksContextProvider";
 import ControlBox from "./ControlBox";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 type Props = {};
 

@@ -9,6 +9,8 @@ import { ArrayGrid, createArrayGrid } from "../utils/arrayGrid";
 import { FlocksContext } from "../utils/context/FlocksContextProvider";
 import { BirdsData, CollisionGrids, update } from "../utils/updateFlock";
 
+const WORLD_DIMS = new Vector3(300, 300, 300);
+const WORLD_OFFSET = new Vector3(-150, -150, -150);
 const BIRD_GEOMETRY = <coneGeometry args={[0.25, 0.5, 5, 1, false]} />;
 const BIRD_MATERIAL = <meshStandardMaterial roughness={1} metalness={0} />;
 
@@ -47,9 +49,6 @@ const Flocks = ({}) => {
 
   const [instances, setInstances] = useState<React.ReactElement[]>();
 
-  const worldDims = new Vector3(200, 200, 200);
-  const worldOffset = new Vector3(-100, -100, -100);
-
   useEffect(() => {
     const nextPosArr: Vector3[] = [];
     const posCellValuePairs: [Vector3, number][] = [];
@@ -66,24 +65,24 @@ const Flocks = ({}) => {
 
     const nextSeparationGrid = createArrayGrid(
       posCellValuePairs,
-      worldDims,
-      worldOffset,
+      WORLD_DIMS,
+      WORLD_OFFSET,
       separationDist
     );
     setSeparationGrid(nextSeparationGrid);
 
     const nextAlignmentGrid = createArrayGrid(
       posCellValuePairs,
-      worldDims,
-      worldOffset,
+      WORLD_DIMS,
+      WORLD_OFFSET,
       alignmentDist
     );
     setAlignmentGrid(nextAlignmentGrid);
 
     const nextCohesionGrid = createArrayGrid(
       posCellValuePairs,
-      worldDims,
-      worldOffset,
+      WORLD_DIMS,
+      WORLD_OFFSET,
       cohesionDist
     );
     setCohesionGrid(nextCohesionGrid);
@@ -100,8 +99,8 @@ const Flocks = ({}) => {
 
     const nextSeparationGrid = createArrayGrid(
       posCellValuePairs,
-      worldDims,
-      worldOffset,
+      WORLD_DIMS,
+      WORLD_OFFSET,
       separationDist
     );
     setSeparationGrid(nextSeparationGrid);
@@ -118,8 +117,8 @@ const Flocks = ({}) => {
 
     const nextAlignmentGrid = createArrayGrid(
       posCellValuePairs,
-      worldDims,
-      worldOffset,
+      WORLD_DIMS,
+      WORLD_OFFSET,
       alignmentDist
     );
     setAlignmentGrid(nextAlignmentGrid);
@@ -136,8 +135,8 @@ const Flocks = ({}) => {
 
     const nextCohesionGrid = createArrayGrid(
       posCellValuePairs,
-      worldDims,
-      worldOffset,
+      WORLD_DIMS,
+      WORLD_OFFSET,
       cohesionDist
     );
     setCohesionGrid(nextCohesionGrid);

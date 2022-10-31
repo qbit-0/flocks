@@ -8,7 +8,6 @@ import {
 } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useContext } from "react";
-import { Fog } from "three";
 import { FlocksContext } from "../utils/context/FlocksContextProvider";
 import Flocks from "./Flocks";
 
