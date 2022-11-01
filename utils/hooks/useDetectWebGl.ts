@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const useDetectWebGl = () => {
+const useDetectWebGL = () => {
   const [isWebGlDetected, setIsWebGlDetected] = useState(false);
 
   useEffect(() => {
@@ -27,4 +27,4 @@ const useDetectWebGl = () => {
   return isWebGlDetected;
 };
 
-export default useDetectWebGl;
+export default useDetectWebGL;
