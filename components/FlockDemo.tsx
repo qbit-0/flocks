@@ -9,7 +9,7 @@ type Props = {};
 const FlockDemo = (props: Props) => {
   const isDetectWebGl = useDetectWebGl();
   if (!isDetectWebGl) {
-    return <Typography>WebGl is not supported on this browser. </Typography>;
+    return <Typography>WebGl is not supported on this browser.</Typography>;
   }
 
   return (
