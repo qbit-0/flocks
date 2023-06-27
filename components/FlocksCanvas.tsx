@@ -1,15 +1,15 @@
-import { useTheme } from "@mui/material";
+import { useTheme } from '@mui/material';
 import {
   Environment,
   Loader,
   PerspectiveCamera,
   Plane,
   ScreenQuad,
-} from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
-import { Suspense, useContext } from "react";
-import { FlocksContext } from "../utils/context/FlocksContextProvider";
-import Flocks from "./Flocks";
+} from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
+import { Suspense, useContext } from 'react';
+import { FlocksContext } from '../utils/context/FlocksContextProvider';
+import Flocks from './Flocks';
 
 const TILE_SIZE = 1;
 
@@ -40,7 +40,6 @@ const FlocksCanvas = (props: Props) => {
           ]}
           intensity={1}
         />
-        <Environment preset="city" />
         <ScreenQuad position={[0, 0, -100]} scale={1000}>
           <meshBasicMaterial color={theme.palette.canvasBg.main} />
         </ScreenQuad>
